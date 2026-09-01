@@ -59,10 +59,7 @@ window.AndiData = (function () {
     { id: 'g-pencil',   label: 'Pencil case' },
     { id: 'g-book',     label: 'Reading book' },
     { id: 'g-water',    label: 'Water bottle' },
-    { id: 'g-lunch',    label: 'Lunch or lunch money' },
     { id: 'g-phone',    label: 'Phone (charged)' },
-    { id: 'g-keys',     label: 'Keys' },
-    { id: 'g-pass',     label: 'Bus pass' },
     { id: 'g-ear',      label: 'Ear defenders or earbuds' },
     { id: 'g-fidget',   label: 'Fidget' },
     { id: 'g-card',     label: 'Time-out card' },
@@ -348,6 +345,13 @@ window.AndiData = (function () {
       'You can eat and then leave. You do not have to stay the whole time.',
       'If it is horrible, go to the library or the SRB room instead.',
       'Ask Mum to check with school where you can eat if the hall is too much.'
+    ]},
+    { id: 'thumb', q: 'What if my thumb does not work at lunch?', ico: '👍', steps: [
+      'Your lunch money is on your fingerprint, so there is nothing to carry and nothing to lose.',
+      'If the scanner will not read you, it is the scanner, not you. It happens to everyone.',
+      'Say: "It is not scanning, please can you look me up?" They can find you by name.',
+      'Dry your thumb on your jumper and try once more — wet or cold hands are usually the reason.',
+      'You will not be turned away and made to go hungry. That is not a thing that happens.'
     ]},
     { id: 'forgot', q: 'What if I forget something?', ico: '🧳', steps: [
       'Tell the teacher at the start of the lesson, not when you get caught out.',
