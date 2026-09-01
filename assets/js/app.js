@@ -155,9 +155,23 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
     var after = S.state.routines.afterSchool;
     var bed = S.state.routines.bedtime;
 
+    /* On a day with no school there is no bag to pack, so do not show one and
+       make her wonder what she has missed. If tomorrow is a school day, point
+       at that instead — which is what Sunday evening is actually for. */
+    var tomorrow = S.addDays(new Date(), 1);
+    var bagRow = null;
+    if (R.isSchoolDay(new Date())) {
+      bagRow = miniRow('🎒', 'Bag', S.countDone('bag', bagItems, key), bagItems.length,
+        function () { R.setBagWhen('today'); go('bag'); });
+    } else if (R.isSchoolDay(tomorrow)) {
+      var tomItems = R.bagListFor(tomorrow), tomKey = S.dayKey(tomorrow);
+      bagRow = miniRow('🎒', 'Bag for tomorrow', S.countDone('bag', tomItems, tomKey), tomItems.length,
+        function () { R.setBagWhen('tomorrow'); go('bag'); });
+    }
+
     kids.push(U.card('Where you are up to', [
       miniRow('☀️', 'Morning', S.countDone('morning', morning, key), morning.length, function () { go('morning'); }),
-      miniRow('🎒', 'Bag', S.countDone('bag', bagItems, key), bagItems.length, function () { R.setBagWhen('today'); go('bag'); }),
+      bagRow,
       miniRow('🏠', 'After school', S.countDone('afterSchool', after, key), after.length, function () { go('evening'); }),
       miniRow('🌙', 'Bedtime', S.countDone('bedtime', bed, key), bed.length, function () { go('evening'); })
     ], { ico: '✅' }));

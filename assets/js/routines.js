@@ -151,6 +151,25 @@ window.AndiRoutines = (function (D, S, U) {
         : (plan.note ? plan.note : (plan.school ? 'Week ' + plan.week + '. Nothing unusual.' : 'Not a school day — pack only if you want to.')) })
     ]));
 
+    /* Nothing to pack on a day off. Showing the school list anyway makes it
+       look like a job she has not done. */
+    if (!isSchoolDay(date)) {
+      kids.push(U.card('Nothing to pack', [
+        el('p', { class: 'muted', text: bagWhen === 'tomorrow'
+          ? 'No school tomorrow either. Have the day.'
+          : 'No school today, so there is no bag to get ready.' }),
+        isSchoolDay(S.addDays(new Date(), 1)) && bagWhen === 'today'
+          ? el('div', { class: 'btn-row', style: 'margin-top:12px' }, [
+              U.btn('Pack for tomorrow instead', { small: true, variant: 'primary', onClick: function () {
+                bagWhen = 'tomorrow'; renderBag(root, go);
+              }})
+            ])
+          : null
+      ], { ico: '🌤️' }));
+      U.mount(root, kids);
+      return;
+    }
+
     kids.push(U.progressBar(done, items.length, 'Bag packing'));
 
     kids.push(U.checklist(items, {

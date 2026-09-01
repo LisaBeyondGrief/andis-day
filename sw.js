@@ -3,7 +3,7 @@
    most apps, because the moment she needs the Calm tab is exactly the moment
    she will not be able to wait for a page to load. */
 
-var CACHE = 'andis-day-v10';
+var CACHE = 'andis-day-v11';
 var FILES = [
   './',
   './index.html',
