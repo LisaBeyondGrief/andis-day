@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f4ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171a1c" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Andi's school day helper — routines, packing lists and calm-down tools.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Andi's Day">
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+<link rel="icon" href="assets/icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<title>Andi's Day</title>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="app-bar">
+  <div class="app-bar-inner">
+    <img class="app-logo" src="assets/icons/icon-192.png" alt="Bartholomew" width="42" height="42">
+    <div class="app-bar-title">
+      <span class="app-bar-name" id="barGreeting">Andi's Day</span>
+      <span class="app-bar-sub" id="barDate"></span>
+    </div>
+    <button type="button" class="calm-now" id="calmNowBtn" aria-label="I need to feel calm right now">
+      <span aria-hidden="true">🫧</span> Calm
+    </button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ============ TODAY ============ -->
+  <section class="screen" id="screen-today" aria-labelledby="todayHeading">
+    <h1 id="todayHeading" class="screen-title">Today</h1>
+    <div id="todayBody"></div>
+  </section>
+
+  <!-- ============ MORNING ============ -->
+  <section class="screen" id="screen-morning" hidden aria-labelledby="morningHeading">
+    <h1 id="morningHeading" class="screen-title">Morning</h1>
+    <div id="morningBody"></div>
+  </section>
+
+  <!-- ============ BAG ============ -->
+  <section class="screen" id="screen-bag" hidden aria-labelledby="bagHeading">
+    <h1 id="bagHeading" class="screen-title">My bag</h1>
+    <div id="bagBody"></div>
+  </section>
+
+  <!-- ============ EVENING ============ -->
+  <section class="screen" id="screen-evening" hidden aria-labelledby="eveningHeading">
+    <h1 id="eveningHeading" class="screen-title">Evening</h1>
+    <div id="eveningBody"></div>
+  </section>
+
+  <!-- ============ CALM ============ -->
+  <section class="screen" id="screen-calm" hidden aria-labelledby="calmHeading">
+    <h1 id="calmHeading" class="screen-title">Calm</h1>
+    <div id="calmBody"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="screen" id="screen-settings" hidden aria-labelledby="settingsHeading">
+    <h1 id="settingsHeading" class="screen-title">Set up</h1>
+    <div id="settingsBody"></div>
+  </section>
+
+</main>
+
+<nav class="tabbar" aria-label="Main">
+  <button type="button" class="tab" data-go="today"    aria-current="page"><span class="tab-ico" aria-hidden="true">🏠</span><span class="tab-label">Today</span></button>
+  <button type="button" class="tab" data-go="morning"><span class="tab-ico" aria-hidden="true">☀️</span><span class="tab-label">Morning</span></button>
+  <button type="button" class="tab" data-go="bag"><span class="tab-ico" aria-hidden="true">🎒</span><span class="tab-label">Bag</span></button>
+  <button type="button" class="tab" data-go="evening"><span class="tab-ico" aria-hidden="true">🌙</span><span class="tab-label">Evening</span></button>
+  <button type="button" class="tab" data-go="calm"><span class="tab-ico" aria-hidden="true">🫧</span><span class="tab-label">Calm</span></button>
+  <button type="button" class="tab" data-go="settings"><span class="tab-ico" aria-hidden="true">⚙️</span><span class="tab-label">Set up</span></button>
+</nav>
+
+<!-- Full-screen overlay used by breathing, grounding, meditations -->
+<div class="overlay" id="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+  <div class="overlay-inner">
+    <div class="overlay-head">
+      <h2 id="overlayTitle">&nbsp;</h2>
+      <button type="button" class="overlay-close" id="overlayClose" aria-label="Close and go back">Done</button>
+    </div>
+    <div class="overlay-body" id="overlayBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/routines.js"></script>
+<script src="assets/js/calm.js"></script>
+<script src="assets/js/settings.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
