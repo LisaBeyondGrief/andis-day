@@ -396,16 +396,16 @@ window.AndiSettings = (function (D, S, U) {
          a phone than any grid, and it reads like the paper timetable. */
       var lessonBox = el('textarea', {
         style: 'margin-top:8px;min-height:96px',
-        placeholder: 'Subject, room, teacher — one line per period',
+        placeholder: 'Time, subject, room, teacher — one lesson per line',
         'aria-label': D.DAY_NAMES[key] + ' lessons'
       });
       lessonBox.value = (day.lessons || []).map(function (l) {
-        return [l.subject, l.room, l.teacher].filter(Boolean).join(', ');
+        return [l.time, l.subject, l.room, l.teacher].filter(Boolean).join(', ');
       }).join('\n');
       lessonBox.addEventListener('change', function () {
         day.lessons = lessonBox.value.split('\n').map(function (line) {
           var bits = line.split(',').map(function (x) { return x.trim(); });
-          return { subject: bits[0] || '', room: bits[1] || '', teacher: bits[2] || '' };
+          return { time: bits[0] || '', subject: bits[1] || '', room: bits[2] || '', teacher: bits[3] || '' };
         });
         while (day.lessons.length && !day.lessons[day.lessons.length - 1].subject) day.lessons.pop();
         S.save();

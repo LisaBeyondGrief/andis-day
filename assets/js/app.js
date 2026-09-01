@@ -204,8 +204,11 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
       kids.push(U.card('Lessons today', [
         el('ol', { class: 'lessons' }, plan.lessons.map(function (l, i) {
           return el('li', { class: 'lesson' }, [
-            el('span', { class: 'lesson-p', 'aria-hidden': 'true', text: String(i + 1) }),
-            el('span', { class: 'lesson-name', text: l.subject || 'Free' }),
+            el('span', { class: 'lesson-time', text: l.time || String(i + 1) }),
+            el('span', { class: 'lesson-text' }, [
+              el('span', { class: 'lesson-name', text: l.subject || 'Free' }),
+              l.teacher ? el('span', { class: 'lesson-who', text: l.teacher }) : null
+            ]),
             l.room ? el('span', { class: 'lesson-room', text: l.room }) : null
           ]);
         })),

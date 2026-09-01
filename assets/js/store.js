@@ -307,12 +307,17 @@ window.AndiStore = (function (D) {
     // day, whatever the weekly pattern says.
     var beforeTerm = !!(state.profile.firstDay && dayKey(date) < state.profile.firstDay);
     var wk = weekNumberFor(date);
-    var wkDay = (t['w' + wk] && t['w' + wk][key]) || { note: '', extras: [] };
+    var school = !!every.school && !beforeTerm;
+    // Lessons, PE kit and the rest belong to a school day. On a weekend or
+    // before term starts they should not appear at all — a bag list telling
+    // her to pack PE kit two days before she starts is noise she has to
+    // second-guess.
+    var wkDay = (school && t['w' + wk] && t['w' + wk][key]) || { note: '', extras: [], lessons: [] };
     var notes = [every.note, wkDay.note].filter(Boolean);
     return {
       week: wk,
       weekday: key,
-      school: !!every.school && !beforeTerm,
+      school: school,
       note: notes.join(' · '),
       everyExtras: every.extras || [],
       weekExtras: wkDay.extras || [],

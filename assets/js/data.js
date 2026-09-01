@@ -91,83 +91,149 @@ window.AndiData = (function () {
     return w;
   }
 
-  /* A lesson is [subject, room, teacher]. Position in the array is the period,
-     so an empty slot is a free period. Rooms are in here because "what if I get
-     lost" is one of her real worries, and a room code in her pocket answers it
+  /* A lesson carries its real start time, room and teacher, taken from the
+     school app's own export. Times matter more than period numbers to someone
+     working out where she is meant to be; rooms answer "what if I get lost"
      faster than asking a stranger in a corridor. */
-  function lesson(subject, room, teacher) {
-    return { subject: subject, room: room || '', teacher: teacher || '' };
+  function lesson(time, subject, room, teacher) {
+    return { time: time, subject: subject, room: room || '', teacher: teacher || '' };
   }
+
+  var TUTOR = lesson('14:30', 'Tutor', 'G15', 'JDU');
+
+  /* Spelled out rather than "PE kit": one tick against an unopened bag is how
+     half of it gets left at home. */
+  var PE_KIT = [
+    'Black skort, leggings or tracksuit bottoms',
+    'Black PE t-shirt',
+    'PE tracksuit top',
+    'Trainers',
+    'Clean black socks for afterwards'
+  ];
+
+  var SWIM_KIT = [
+    'Swim bag — costume, goggles, hat, towel, clean underwear',
+    'Kit bag — fins, float, kick-board',
+    'Water bottle, freshly made'
+  ];
+
+  /* The school runs a rolling two-week timetable, so a single repeating week
+     cannot describe it. Each weekday therefore has two layers:
+
+       every  — things that happen every week whatever the school week is
+                (swimming, gym, whether it is a school day at all)
+       w1/w2  — the school's Week 1 and Week 2 timetable on top of that
+
+     A day's list is "every" plus whichever of w1/w2 today falls in. Weekly
+     things go in once, not twice, and the fortnightly timetable sits over it.
+
+     Week 1 and Week 2 below are read off the school app's export for
+     3-25 September, confirmed by the fortnight repeating exactly: Thursday
+     the 3rd matches the 17th, Friday the 4th matches the 18th, and Monday the
+     7th matches the 21st. */
 
   var timetable = {
     every: {
       mon: { school: true,  note: 'Gym at 7pm — strength and conditioning (Purple)',
-             extras: [], homeExtras: ['Gym kit and trainers', 'Water bottle'] },
+             extras: [], homeExtras: ['Gym kit and trainers', 'Water bottle, freshly made'] },
       tue: { school: true,  note: 'Swimming at 7pm · three of the four pool sessions is plenty',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] },
+             extras: [], homeExtras: SWIM_KIT.slice() },
       wed: { school: true,  note: '', extras: [], homeExtras: [] },
       thu: { school: true,  note: '', extras: [], homeExtras: [] },
       fri: { school: true,  note: 'Swimming at 6.30pm · three of the four pool sessions is plenty',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] },
+             extras: [], homeExtras: SWIM_KIT.slice() },
       sat: { school: false, note: 'Swimming at 12pm · three of the four pool sessions is plenty',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] },
+             extras: [], homeExtras: SWIM_KIT.slice() },
       sun: { school: false, note: 'Swimming at 2pm · three of the four is plenty. Pack for Monday.',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] }
+             extras: [], homeExtras: SWIM_KIT.slice() }
     },
+
     w1: (function () {
       var w = blankWeek();
       w.mon.lessons = [
-        lesson('Geography', 'S40', 'Mr Mundy'),
-        lesson('Spanish', 'F26', 'Mrs Mcvoy'),
-        lesson('Maths', 'S11', 'Miss Hargrave'),
-        lesson('English', 'F38', 'Mrs Roberts'),
-        lesson('History', 'S43', 'Mr Crawford')
+        lesson('08:35', 'Geography', 'S40', 'Mr Mundy'),
+        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
+        lesson('12:00', 'English', 'F38', 'Mrs Roberts'),
+        lesson('13:30', 'Religious Studies', 'F23', 'Mr Thurston'),
+        TUTOR
       ];
       w.tue.lessons = [
-        lesson('Geography', 'S40', 'Mr Mundy'),
-        lesson('Spanish', 'F26', 'Mrs Mcvoy'),
-        lesson('Maths', 'S11', 'Miss Hargrave'),
-        lesson('PE', 'G69', ''),
-        lesson('PFA', 'F62', 'Mr Dilley')
+        lesson('08:35', 'Music', 'F67', 'Mr Corfield'),
+        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
+        lesson('11:00', 'English', 'F38', 'Mrs Roberts'),
+        lesson('12:00', 'PE', 'G69', 'Mr Lambert'),
+        lesson('13:30', 'History', 'S43', 'Mr Crawford'),
+        TUTOR
       ];
-      w.tue.note = 'PE today';
-      /* Spelled out rather than "PE kit". One tick against a bag she has not
-         opened is how half of it gets left at home; four items she can see are
-         four things she can actually check. Each line is one decision — legs,
-         top, warm top, feet. */
-      w.tue.extras = [
-        'Black skort, leggings or tracksuit bottoms',
-        'Black PE t-shirt',
-        'PE tracksuit top',
-        'Trainers',
-        'Clean black socks for afterwards'
-      ];
+      w.tue.note = 'PE after lunch';
+      w.tue.extras = PE_KIT.slice();
       w.wed.lessons = [
-        lesson('Science', 'G18', 'Mr Stephen'),
-        lesson('RE', 'F23', 'Mr Thurston'),
-        lesson('English', 'F38', 'Mrs Roberts'),
-        lesson('ICT', 'S58', 'Mr Dilley'),
-        lesson('History', 'S43', 'Mr Crawford')
+        lesson('08:35', 'Science', 'G18', 'Mr Stephen'),
+        lesson('09:40', 'Religious Studies', 'F23', 'Mr Thurston'),
+        lesson('11:00', 'English', 'F38', 'Mrs Roberts'),
+        lesson('12:00', 'PSHE', 'G13', 'Mrs Power'),
+        lesson('13:30', 'History', 'S43', 'Mr Crawford'),
+        TUTOR
       ];
       w.thu.lessons = [
-        lesson('Science', 'G13', 'Mr Wilkinson'),
-        lesson('Science', 'G18', 'Mr Stephen'),
-        lesson('Maths', 'S11', 'Miss Hargrave'),
-        lesson('English', 'F38', 'Mrs Roberts'),
-        lesson('PSHE', 'S27', 'Mrs Power')
+        lesson('08:35', 'Science', 'G14', 'Mr Wilkinson'),
+        lesson('09:40', 'Science', 'G18', 'Mr Stephen'),
+        lesson('12:00', 'English', 'F38', 'Mrs Roberts'),
+        lesson('13:30', 'Art', 'F23', 'Mr Thurston'),
+        TUTOR
       ];
       w.fri.lessons = [
-        lesson('Food', 'G32', 'Miss Luter'),
-        lesson('Food', 'G32', 'Miss Luter'),
-        lesson('Maths', 'S11', 'Miss Hargrave'),
-        lesson('English', 'F38', 'Mrs Roberts'),
-        lesson('Music', 'F67', 'Mr Corfield')
+        lesson('08:35', 'Food', 'G32', 'Miss Luter'),
+        lesson('09:40', 'Food', 'G32', 'Miss Luter'),
+        lesson('12:00', 'PE', 'G69', 'Mr Wilkinson'),
+        lesson('13:30', 'Performing Arts', 'F41', 'Mr Dilley'),
+        TUTOR
       ];
-      w.fri.note = 'Food tech — double lesson';
-      w.fri.extras = ['Food ingredients', 'A container to bring it home'];
+      w.fri.note = 'Food tech first thing (double), then PE';
+      w.fri.extras = ['Food ingredients', 'A container to bring it home'].concat(PE_KIT);
       return w;
     })(),
-    w2: blankWeek()          // waiting on the Week 2 sheet
+
+    w2: (function () {
+      var w = blankWeek();
+      w.mon.lessons = [
+        lesson('09:40', 'History', 'S43', 'Mr Crawford'),
+        lesson('12:00', 'PE', 'G69', 'Mr Lambert'),
+        lesson('13:30', 'English', 'F38', 'Mrs Roberts'),
+        TUTOR
+      ];
+      w.mon.note = 'PE after lunch';
+      w.mon.extras = PE_KIT.slice();
+      w.tue.lessons = [
+        lesson('08:35', 'Geography', 'S40', 'Mr Mundy'),
+        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
+        lesson('12:00', 'English', 'F38', 'Mrs Roberts'),
+        TUTOR
+      ];
+      w.wed.lessons = [
+        lesson('08:35', 'PE', 'G69', 'Mr Wilkinson'),
+        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
+        lesson('11:00', 'ICT', 'S58', 'Mr Dilley'),
+        lesson('12:00', 'Geography', 'S40', 'Mr Mundy'),
+        lesson('13:30', 'English', 'F38', 'Mrs Roberts'),
+        TUTOR
+      ];
+      w.wed.note = 'PE first thing — kit on before you go if that is easier';
+      w.wed.extras = PE_KIT.slice();
+      w.thu.lessons = [
+        lesson('08:35', 'Science', 'G18', 'Mr Stephen'),
+        lesson('09:40', 'English', 'F38', 'Mrs Roberts'),
+        lesson('12:00', 'History', 'S43', 'Mr Crawford'),
+        lesson('13:30', 'Art', 'F23', 'Mr Thurston'),
+        TUTOR
+      ];
+      w.fri.lessons = [
+        lesson('08:35', 'Science', 'G14', 'Mr Wilkinson'),
+        lesson('09:40', 'Music', 'F67', 'Mr Corfield'),
+        lesson('12:00', 'Design Technology', 'G25', 'KRE')
+      ];
+      return w;
+    })()
   };
 
   /* ---------- breathing patterns ---------- */

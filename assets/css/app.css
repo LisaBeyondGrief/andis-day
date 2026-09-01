@@ -472,14 +472,15 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 22px 0; }
   border-bottom: 1px solid var(--line);
 }
 .lesson:last-child { border-bottom: 0; }
-.lesson-p {
+.lesson-time {
   flex: none;
-  width: 26px; height: 26px; border-radius: 8px;
-  display: grid; place-items: center;
-  background: var(--bg-sunk); color: var(--ink-soft);
-  font-size: .78em; font-weight: 700; font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  color: var(--ink-soft);
+  font-size: .82em; font-weight: 650; font-variant-numeric: tabular-nums;
 }
-.lesson-name { flex: 1; min-width: 0; font-weight: 550; }
+.lesson-text { flex: 1; min-width: 0; }
+.lesson-name { display: block; font-weight: 550; }
+.lesson-who { display: block; color: var(--ink-soft); font-size: .78em; }
 .lesson-room {
   flex: none;
   font-variant-numeric: tabular-nums; font-weight: 650;
