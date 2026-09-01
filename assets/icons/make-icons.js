@@ -22,12 +22,20 @@ const CROP = { x: 209, y: 26, s: 635 };     // in source pixels
 const SIZES = [192, 512, 180];
 const CREAM = [242, 236, 226];               // app background, --bg
 
+/* Android crops a "maskable" icon to its own mask shape — a circle, a squircle,
+   a teardrop depending on the launcher — keeping only the middle ~80%. A
+   full-bleed icon loses its edges to that, and a bear whose ears sit near the
+   top edge comes back as a patch of fur. So the maskable version is drawn
+   separately: same photo, scaled down inside a plain square of cream, with
+   enough margin that every mask shape still shows the whole bear. */
+const MASKABLE = { size: 512, scale: 0.62 };
+
 (async () => {
   const browser = await chromium.launch();
   const page = await (await browser.newContext()).newPage();
   const jpg = fs.readFileSync(SOURCE).toString('base64');
 
-  const out = await page.evaluate(async ({ jpg, CROP, SIZES, CREAM }) => {
+  const out = await page.evaluate(async ({ jpg, CROP, SIZES, CREAM, MASKABLE }) => {
     const img = new Image();
     img.src = 'data:image/jpeg;base64,' + jpg;
     await img.decode();
@@ -70,13 +78,42 @@ const CREAM = [242, 236, 226];               // app background, --bg
 
       results[size] = c.toDataURL('image/png');
     }
+
+    // the maskable variant: square, padded, no rounded corners of its own
+    (function () {
+      const size = MASKABLE.size;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const g = c.getContext('2d');
+      g.fillStyle = 'rgb(' + CREAM.join(',') + ')';
+      g.fillRect(0, 0, size, size);
+      const inner = Math.round(size * MASKABLE.scale);
+      const off = Math.round((size - inner) / 2);
+      g.imageSmoothingQuality = 'high';
+      g.drawImage(img, CROP.x, CROP.y, CROP.s, CROP.s, off, off, inner, inner);
+
+      const d = g.getImageData(0, 0, size, size);
+      const px = d.data;
+      for (let i = 0; i < px.length; i += 4) {
+        let t = (Math.min(px[i], px[i + 1], px[i + 2]) - 236) / 14;
+        if (t <= 0) continue;
+        if (t > 1) t = 1;
+        for (let k = 0; k < 3; k++) px[i + k] = px[i + k] * (1 - t) + CREAM[k] * t;
+      }
+      g.putImageData(d, 0, 0);
+      results.maskable = c.toDataURL('image/png');
+    })();
+
     return results;
-  }, { jpg, CROP, SIZES, CREAM });
+  }, { jpg, CROP, SIZES, CREAM, MASKABLE });
 
   for (const size of SIZES) {
     const file = path.join(HERE, 'icon-' + size + '.png');
     fs.writeFileSync(file, Buffer.from(out[size].split(',')[1], 'base64'));
     console.log('wrote', path.basename(file));
   }
+  const maskFile = path.join(HERE, 'icon-maskable-512.png');
+  fs.writeFileSync(maskFile, Buffer.from(out.maskable.split(',')[1], 'base64'));
+  console.log('wrote', path.basename(maskFile));
   await browser.close();
 })();

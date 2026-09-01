@@ -3,7 +3,7 @@
    most apps, because the moment she needs the Calm tab is exactly the moment
    she will not be able to wait for a page to load. */
 
-var CACHE = 'andis-day-v12';
+var CACHE = 'andis-day-v13';
 var FILES = [
   './',
   './index.html',
@@ -18,7 +18,8 @@ var FILES = [
   './assets/js/app.js',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
-  './assets/icons/icon-180.png'
+  './assets/icons/icon-180.png',
+  './assets/icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install', function (e) {
