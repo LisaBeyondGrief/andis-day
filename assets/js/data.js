@@ -104,15 +104,15 @@ window.AndiData = (function () {
       mon: { school: true,  note: 'Gym at 7pm — strength and conditioning (Purple)',
              extras: [], homeExtras: ['Gym kit and trainers', 'Water bottle'] },
       tue: { school: true,  note: 'Swimming at 7pm · three of the four pool sessions is plenty',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] },
+             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] },
       wed: { school: true,  note: '', extras: [], homeExtras: [] },
       thu: { school: true,  note: '', extras: [], homeExtras: [] },
       fri: { school: true,  note: 'Swimming at 6.30pm · three of the four pool sessions is plenty',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] },
+             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] },
       sat: { school: false, note: 'Swimming at 12pm · three of the four pool sessions is plenty',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] },
+             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] },
       sun: { school: false, note: 'Swimming at 2pm · three of the four is plenty. Pack for Monday.',
-             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] }
+             extras: [], homeExtras: ['Swim bag — kit, goggles, hat, towel, clean underwear'] }
     },
     w1: (function () {
       var w = blankWeek();
@@ -139,7 +139,8 @@ window.AndiData = (function () {
         'Black skort, leggings or tracksuit bottoms',
         'Black PE t-shirt',
         'PE tracksuit top',
-        'Trainers'
+        'Trainers',
+        'Clean black socks for afterwards'
       ];
       w.wed.lessons = [
         lesson('Science', 'G18', 'Mr Stephen'),
