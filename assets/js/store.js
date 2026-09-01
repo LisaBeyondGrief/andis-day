@@ -28,6 +28,7 @@ window.AndiStore = (function (D) {
         dyslexicFont: false,
         motion: true,
         speech: true,           // read meditations aloud
+        keepAwake: true,        // hold the screen on while a meditation plays
         showTimes: true
       },
       routines: {

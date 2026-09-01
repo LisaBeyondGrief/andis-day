@@ -15,12 +15,51 @@ window.AndiCalm = (function (D, S, U) {
 
   var keepAlive = null;
 
+  /* ---- keeping the screen on ----
+     A phone screen times out after as little as fifteen seconds, and she is
+     not touching it during a meditation — so it would lock, the speech would
+     stop, and the one thing meant to settle her would quit halfway through.
+     The Wake Lock API holds the screen on for as long as something is playing
+     and releases it the moment it stops, so it costs battery only while it is
+     actually doing something. Browsers drop the lock whenever the page is
+     hidden, so it has to be re-taken when she comes back. */
+
+  var wakeLock = null, sessionRunning = false;
+
+  function keepAwake() {
+    sessionRunning = true;
+    if (!S.state.settings.keepAwake) return;
+    if (!navigator.wakeLock || !navigator.wakeLock.request) return;
+    if (wakeLock) return;
+    try {
+      navigator.wakeLock.request('screen').then(function (lock) {
+        wakeLock = lock;
+        lock.addEventListener('release', function () { wakeLock = null; });
+      }).catch(function () { /* denied, low battery, or not allowed here */ });
+    } catch (e) {}
+  }
+
+  function letSleep() {
+    sessionRunning = false;
+    if (!wakeLock) return;
+    try { wakeLock.release(); } catch (e) {}
+    wakeLock = null;
+  }
+
+  function screenLockSupported() {
+    return !!(navigator.wakeLock && navigator.wakeLock.request);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && sessionRunning) keepAwake();
+  });
+
   function stopSpeech() {
     clearInterval(keepAlive); keepAlive = null;
     try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
   }
 
-  function stopEverything() { stopTimers(); stopSpeech(); }
+  function stopEverything() { stopTimers(); stopSpeech(); letSleep(); }
 
   /* ---- the phone's own voice ----
      There is no recorded audio anywhere in this app: the meditations are read
@@ -212,6 +251,7 @@ window.AndiCalm = (function (D, S, U) {
     function halt() {
       running = false;
       stopTimers();
+      letSleep();
       document.getElementById('breathWord').textContent = 'Stopped';
       document.getElementById('breathCount').textContent = '';
       document.getElementById('breathMeta').textContent = 'Stopping early is fine. Any breathing counts.';
@@ -223,6 +263,7 @@ window.AndiCalm = (function (D, S, U) {
 
     function run() {
       running = true;
+      keepAwake();
       startBtn.hidden = true; stopBtn.hidden = false;
       var round = 0, idx = 0;
 
@@ -266,6 +307,7 @@ window.AndiCalm = (function (D, S, U) {
 
       function finish() {
         running = false;
+        letSleep();
         document.getElementById('breathWord').textContent = 'Done';
         document.getElementById('breathCount').textContent = '';
         document.getElementById('breathMeta').textContent = 'That is your body slowing down. Nothing else needed.';
@@ -359,16 +401,25 @@ window.AndiCalm = (function (D, S, U) {
       playing = false;
       stopTimers();
       stopSpeech();
+      letSleep();
       playBtn.textContent = i === 0 ? 'Start' : 'Carry on';
     }
 
     function toggle() {
       if (playing) { pause(); return; }
       unlockSpeech();          // must happen in the tap itself, for iOS
+      keepAwake();             // and hold the screen on while it plays
       playing = true;
       playBtn.textContent = 'Pause';
       advance(true);
     }
+
+    /* If she leaves the app anyway, stop where she is rather than talking to
+       an empty room — she comes back to "Carry on" on the same line. */
+    function onHide() {
+      if (document.visibilityState === 'hidden' && playing) pause();
+    }
+    document.addEventListener('visibilitychange', onHide);
 
     function advance(sameLine) {
       if (!playing) return;
@@ -398,6 +449,7 @@ window.AndiCalm = (function (D, S, U) {
     function finish() {
       playing = false;
       stopTimers();
+      letSleep();
       U.mount(stepEl, [
         el('p', { class: 'step-count', text: 'Finished' }),
         el('p', { class: 'step-text', text: 'That is it. Sit for a moment before you get up.' })
@@ -416,7 +468,11 @@ window.AndiCalm = (function (D, S, U) {
       playBtn,
       el('div', { class: 'btn-row', style: 'margin-top:12px' }, [backBtn, fwdBtn, speechBtn]),
       voiceNote
-    ], function () { playing = false; stopEverything(); });
+    ], function () {
+      playing = false;
+      document.removeEventListener('visibilitychange', onHide);
+      stopEverything();
+    });
   }
 
   /* ================= worry box ================= */
@@ -589,6 +645,7 @@ window.AndiCalm = (function (D, S, U) {
     renderWorryList: renderWorryList,
     panic: panic,
     testVoice: testVoice,
+    screenLockSupported: screenLockSupported,
     loadVoices: loadVoices,
     voiceAvailable: voiceAvailable,
     unlockSpeech: unlockSpeech,

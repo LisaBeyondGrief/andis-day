@@ -72,6 +72,11 @@ window.AndiSettings = (function (D, S, U) {
       switchRow('Read meditations out loud', 'Uses the voice built into the phone or tablet. There is no recorded audio to download.',
         S.state.settings.speech, function (on) { S.state.settings.speech = on; S.save(); }),
       voiceTester(),
+      switchRow('Keep the screen on during meditations',
+        AndiCalm.screenLockSupported()
+          ? 'Stops the phone locking halfway through and cutting the voice off. Only held while something is playing.'
+          : 'This phone does not support it, so set the screen timeout higher in the phone\'s own display settings instead.',
+        S.state.settings.keepAwake, function (on) { S.state.settings.keepAwake = on; S.save(); }),
       switchRow('Movement and animation', 'Turn off if the breathing circle is too much.',
         S.state.settings.motion, function (on) {
           S.state.settings.motion = on; S.save(); applyDisplay();
