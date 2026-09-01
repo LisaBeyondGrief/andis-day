@@ -80,8 +80,8 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
     if (schoolDay && leave !== null && now >= leave + 20 && now < 15 * 60) {
       return {
         kicker: 'At school', main: 'You are in it now',
-        note: 'Nothing on this app needs doing until you get home. If it gets hard, the Calm button at the top is one tap.',
-        action: ['I need to feel calmer', function () { C.panic(go); }]
+        note: 'Your phone is in its pouch, so this is waiting for you at home time. Everything you need during the day is on the card in your planner, and in your own head — you already know it.',
+        action: ['Open the Calm tab', function () { go('calm'); }]
       };
     }
 
@@ -222,13 +222,14 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
               ])
             ]);
           }
-          return el('li', { class: 'lesson' }, [
+          return el('li', { class: 'lesson' + (l.tbc ? ' lesson-tbc' : '') }, [
             el('span', { class: 'lesson-time', text: slot.time }),
             el('span', { class: 'lesson-text' }, [
               el('span', { class: 'lesson-name', text: l.subject }),
               l.teacher ? el('span', { class: 'lesson-who', text: l.teacher }) : null
             ]),
-            l.room ? el('span', { class: 'lesson-room', text: l.room }) : null
+            l.room ? el('span', { class: 'lesson-room', text: l.room })
+                   : (l.tbc ? el('span', { class: 'lesson-room lesson-room-tbc', text: 'room?' }) : null)
           ]);
         })),
         (S.state.profile.formTutor || S.state.profile.formRoom)

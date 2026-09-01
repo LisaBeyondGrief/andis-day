@@ -94,6 +94,15 @@ window.AndiSettings = (function (D, S, U) {
       ])
     ], { ico: '🎨' }));
 
+    /* ---- the paper card ---- */
+    kids.push(U.card('Her pocket card', [
+      el('p', { class: 'small muted', text:
+        'Her phone is in a signal-blocking pouch all day, so none of this app is reachable between 08:30 and 15:00 — including the calm tools, which is exactly when she might want them. This prints a small card of her rooms and the steps she cannot look up, to live in her planner or blazer pocket.' }),
+      el('div', { class: 'btn-row', style: 'margin-top:12px' }, [
+        U.btn('Print her card', { small: true, variant: 'primary', onClick: showCard })
+      ])
+    ], { ico: '🪪' }));
+
     /* ---- worries, for the grown-up ---- */
     var flagged = S.state.worries.filter(function (w) { return w.share; });
     kids.push(U.card('Worries she has flagged', [
@@ -157,6 +166,61 @@ window.AndiSettings = (function (D, S, U) {
       });
     }});
     return el('div', { style: 'padding:12px 0 4px' }, [btn, result]);
+  }
+
+  /* The paper version of the app, for the hours the phone is locked away.
+     Both weeks, because she cannot check which one it is without the app. */
+  function showCard() {
+    var rooms = D.DAY_KEYS.slice(0, 5).map(function (k) {
+      return el('tr', {}, [el('th', { text: D.DAY_NAMES[k].slice(0, 3) })].concat(
+        ['w1', 'w2'].map(function (wk) {
+          var day = S.state.timetable[wk][k] || { lessons: [] };
+          var txt = (day.lessons || []).map(function (l) {
+            return l ? (l.subject.slice(0, 4) + (l.room ? ' ' + l.room : ' ?')) : '—';
+          }).join(' · ');
+          return el('td', { text: txt || '—' });
+        })
+      ));
+    });
+
+    U.openOverlay('Her pocket card', [
+      el('div', { class: 'print-card' }, [
+        el('h3', { text: (S.state.profile.name || 'Andi') + ' — where to be' }),
+        el('p', { class: 'small', text: 'Form: ' + (S.state.profile.formTutor || '') +
+          ', room ' + (S.state.profile.formRoom || '') + '.  Line up 08:30. Break 10:40. Lunch 12:00. Home 15:00.' }),
+        el('table', { class: 'card-table' }, [
+          el('thead', {}, [el('tr', {}, [el('th', { text: '' }), el('th', { text: 'Week 1' }), el('th', { text: 'Week 2' })])]),
+          el('tbody', {}, rooms)
+        ]),
+        el('p', { class: 'small', text: 'Lessons in order: 08:35, 09:40, 11:00, 12:30, 13:30.' }),
+
+        el('h3', { style: 'margin-top:18px', text: 'When it is too much' }),
+        el('ol', {}, [
+          el('li', { text: 'Ear defenders on, or hood up. You are allowed.' }),
+          el('li', { text: 'Show your card. Go to the agreed room.' }),
+          el('li', { text: 'Breathe out slowly, longer than you breathe in. Ten times.' }),
+          el('li', { text: 'Thumb to each fingertip. One, two, three, four. Other hand.' }),
+          el('li', { text: '5 things you can see. 4 you can touch. 3 you can hear.' }),
+          el('li', { text: 'Stay until your body slows down. There is no time limit.' })
+        ]),
+
+        el('h3', { style: 'margin-top:18px', text: 'Sentences that work' }),
+        el('ul', {}, [
+          el('li', { text: 'Lost: "Please can you point me to room ___?"' }),
+          el('li', { text: 'Need to leave: "I need to go to the SRB room, please."' }),
+          el('li', { text: 'Lunch scanner: "It is not scanning, please can you look me up?"' }),
+          el('li', { text: 'Forgot something: "I have forgotten my ___, sorry."' }),
+          el('li', { text: 'Plan changed: "What are we doing instead?"' })
+        ]),
+        el('p', { class: 'small', style: 'margin-top:14px', text:
+          'You only have to get through today. Not the whole of high school.' })
+      ]),
+      el('div', { class: 'btn-row no-print', style: 'margin-top:18px' }, [
+        U.btn('Print', { variant: 'primary', onClick: function () { window.print(); } })
+      ]),
+      el('p', { class: 'small muted no-print', style: 'margin-top:10px', text:
+        'Print it, fold it, and put it where she will actually find it. Worth laminating — it will live in a blazer pocket.' })
+    ]);
   }
 
   /* ---------- field builders ---------- */
@@ -400,13 +464,15 @@ window.AndiSettings = (function (D, S, U) {
         'aria-label': D.DAY_NAMES[key] + ' lessons'
       });
       lessonBox.value = (day.lessons || []).map(function (l) {
-        return l ? [l.subject, l.room, l.teacher].filter(Boolean).join(', ') : '';
+        return l ? [l.subject, l.room || (l.tbc ? '?' : ''), l.teacher].filter(Boolean).join(', ') : '';
       }).join('\n');
       lessonBox.addEventListener('change', function () {
         day.lessons = lessonBox.value.split('\n').slice(0, 5).map(function (line) {
           var bits = line.split(',').map(function (x) { return x.trim(); });
           if (!bits[0]) return null;
-          return { subject: bits[0], room: bits[1] || '', teacher: bits[2] || '' };
+          var unknownRoom = bits[1] === '?';
+          return { subject: bits[0], room: unknownRoom ? '' : (bits[1] || ''),
+                   teacher: bits[2] || '', tbc: unknownRoom || undefined };
         });
         S.save();
       });

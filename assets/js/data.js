@@ -58,6 +58,7 @@ window.AndiData = (function () {
     { id: 'g-planner',  label: 'Planner' },
     { id: 'g-pencil',   label: 'Pencil case' },
     { id: 'g-book',     label: 'Reading book' },
+    { id: 'g-tt',       label: 'Paper timetable and calm card' },
     { id: 'g-water',    label: 'Water bottle' },
     { id: 'g-phone',    label: 'Phone (charged)' },
     { id: 'g-pouch',    label: 'Phone pouch' },
@@ -69,7 +70,6 @@ window.AndiData = (function () {
 
   var firstDayExtras = [
     { id: 'f-map',    label: 'Map of the school' },
-    { id: 'f-tt',     label: 'Timetable (paper copy)' },
     { id: 'f-name',   label: 'Name of your form tutor written down' },
     { id: 'f-snack',  label: 'An extra snack' },
     { id: 'f-comfort',label: 'Something small from home in your pocket' }
@@ -117,6 +117,16 @@ window.AndiData = (function () {
   function lesson(subject, room, teacher) {
     return { subject: subject, room: room || '', teacher: teacher || '' };
   }
+
+  /* A lesson we know is happening but whose room and teacher are not settled —
+     Maths, until she is put into a set. Shown as known-but-unconfirmed rather
+     than as a blank, so she does not think she has a free period, and not as a
+     normal lesson either, so an unknown room does not read as a promise. */
+  function tbc(subject, why) {
+    return { subject: subject, room: '', teacher: why || '', tbc: true };
+  }
+
+  var MATHS = function () { return tbc('Maths', 'Set not confirmed yet'); };
   var free = null;
 
   /* Spelled out rather than "PE kit": one tick against an unopened bag is how
@@ -170,7 +180,7 @@ window.AndiData = (function () {
       w.mon.lessons = [
         lesson('Geography', 'S40', 'Mr Mundy'),
         lesson('Spanish', 'F27', 'Mrs Mcvoy'),
-        free,
+        MATHS(),
         lesson('English', 'F38', 'Mrs Roberts'),
         lesson('Religious Studies', 'F23', 'Mr Thurston')
       ];
@@ -193,14 +203,14 @@ window.AndiData = (function () {
       w.thu.lessons = [
         lesson('Science', 'G14', 'Mr Wilkinson'),
         lesson('Science', 'G18', 'Mr Stephen'),
-        free,
+        MATHS(),
         lesson('English', 'F38', 'Mrs Roberts'),
         lesson('Art', 'F23', 'Mr Thurston')
       ];
       w.fri.lessons = [
         lesson('Food', 'G32', 'Miss Luter'),
         lesson('Food', 'G32', 'Miss Luter'),
-        free,
+        MATHS(),
         lesson('PE', 'G69', 'Mr Wilkinson'),
         lesson('Performing Arts', 'F41', 'Mr Dilley')
       ];
@@ -212,9 +222,9 @@ window.AndiData = (function () {
     w2: (function () {
       var w = blankWeek();
       w.mon.lessons = [
-        free,
+        MATHS(),
         lesson('History', 'S43', 'Mr Crawford'),
-        free,
+        MATHS(),
         lesson('PE', 'G69', 'Mr Lambert'),
         lesson('English', 'F38', 'Mrs Roberts')
       ];
@@ -223,9 +233,9 @@ window.AndiData = (function () {
       w.tue.lessons = [
         lesson('Geography', 'S40', 'Mr Mundy'),
         lesson('Spanish', 'F27', 'Mrs Mcvoy'),
-        free,
+        MATHS(),
         lesson('English', 'F38', 'Mrs Roberts'),
-        free
+        MATHS()
       ];
       w.wed.lessons = [
         lesson('PE', 'G69', 'Mr Wilkinson'),
@@ -239,16 +249,16 @@ window.AndiData = (function () {
       w.thu.lessons = [
         lesson('Science', 'G18', 'Mr Stephen'),
         lesson('English', 'F38', 'Mrs Roberts'),
-        free,
+        MATHS(),
         lesson('History', 'S43', 'Mr Crawford'),
         lesson('Art', 'F23', 'Mr Thurston')
       ];
       w.fri.lessons = [
         lesson('Science', 'G14', 'Mr Wilkinson'),
         lesson('Music', 'F67', 'Mr Corfield'),
-        free,
+        MATHS(),
         lesson('Design Technology', 'G25', 'KRE'),
-        free
+        MATHS()
       ];
       return w;
     })()
@@ -334,7 +344,7 @@ window.AndiData = (function () {
         ['Worries are not warnings. Your brain is a very good smoke alarm that goes off when you make toast.', 10],
         ['The worry can stay. It just does not get to drive.', 8],
         ['Two more slow breaths, and then you can open your eyes.', 12],
-        ['If it is still loud, write it down in the Worry Box and let the app hold it for a while.', 8]
+        ['If it is still loud when you get home, write it down in the Worry Box and let the app hold it for a while.', 8]
       ]
     },
     {
@@ -430,7 +440,8 @@ window.AndiData = (function () {
     { id: 'loud', q: 'What if it gets too loud or too much?', ico: '🔊', steps: [
       'Ear defenders on, or hood up, or hands over ears. You are allowed.',
       'Show your time-out card and go to the agreed place.',
-      'Open the Calm tab and do "It is too loud".',
+      'Your phone is pouched, so do it from memory: breathe out slowly, longer than you breathe in. Ten of those.',
+      'Then press your thumb into each fingertip in turn. One, two, three, four. Other hand. Again.',
       'Stay until your body slows down. There is no time limit on this.',
       'You do not owe anyone an explanation while you are still overloaded.'
     ]},
