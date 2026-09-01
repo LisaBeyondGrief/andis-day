@@ -27,7 +27,7 @@ window.AndiData = (function () {
     { id: 'm-bag',     mins: 48, label: 'Check your bag',           note: 'Tap here to see today’s list.', link: 'bag' },
     { id: 'm-calm',    mins: 53, label: 'One minute of breathing',  note: 'Before the front door, not after.', link: 'breathing' },
     { id: 'm-shoes',   mins: 56, label: 'Shoes and coat',           note: '' },
-    { id: 'm-go',      mins: 60, label: 'Out of the door',          note: 'You have got everything. It is done.' }
+    { id: 'm-go',      mins: 60, label: 'Out of the door',          note: 'Lined up at school for 08:30. You have got everything — it is done.' }
   ];
 
   var afterSchool = [
@@ -42,7 +42,7 @@ window.AndiData = (function () {
   ];
 
   var bedtime = [
-    { id: 'b-uniform', label: 'Uniform out for tomorrow',   note: 'Whole thing, including socks.' },
+    { id: 'b-uniform', label: 'Uniform out for tomorrow',   note: 'Blazer or jumper, white shirt, tie, black trousers or skirt, black shoes, socks, phone pouch.' },
     { id: 'b-bagdoor', label: 'Bag by the door',            note: '' },
     { id: 'b-shower',  label: 'Shower or bath',             note: '' },
     { id: 'b-teeth',   label: 'Teeth',                      note: '' },
@@ -60,6 +60,7 @@ window.AndiData = (function () {
     { id: 'g-book',     label: 'Reading book' },
     { id: 'g-water',    label: 'Water bottle' },
     { id: 'g-phone',    label: 'Phone (charged)' },
+    { id: 'g-pouch',    label: 'Phone pouch' },
     { id: 'g-ear',      label: 'Ear defenders or earbuds' },
     { id: 'g-fidget',   label: 'Fidget' },
     { id: 'g-card',     label: 'Time-out card' },
@@ -130,7 +131,16 @@ window.AndiData = (function () {
         lesson('PFA', 'F62', 'Mr Dilley')
       ];
       w.tue.note = 'PE today';
-      w.tue.extras = ['PE kit', 'Trainers'];
+      /* Spelled out rather than "PE kit". One tick against a bag she has not
+         opened is how half of it gets left at home; four items she can see are
+         four things she can actually check. Each line is one decision — legs,
+         top, warm top, feet. */
+      w.tue.extras = [
+        'Black skort, leggings or tracksuit bottoms',
+        'Black PE t-shirt',
+        'PE tracksuit top',
+        'Trainers'
+      ];
       w.wed.lessons = [
         lesson('Science', 'G18', 'Mr Stephen'),
         lesson('RE', 'F23', 'Mr Thurston'),
