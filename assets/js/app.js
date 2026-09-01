@@ -162,15 +162,42 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
       miniRow('🌙', 'Bedtime', S.countDone('bedtime', bed, key), bed.length, function () { go('evening'); })
     ], { ico: '✅' }));
 
-    /* today's note from the timetable */
-    var day = S.state.timetable[S.weekdayKey(new Date())] || {};
-    if (day.note || (day.extras && day.extras.length)) {
+    /* which school week it is, and today's note from the timetable */
+    var plan = S.dayPlan(new Date());
+    if (plan.school) {
+      kids.push(U.card('Week ' + plan.week + ' at school', [
+        plan.note ? el('p', { text: plan.note }) : null,
+        plan.extras.length
+          ? el('p', { class: 'muted', text: 'Extra things to take: ' + plan.extras.join(', ') + '.' })
+          : el('p', { class: 'muted', text: 'Nothing extra to take today.' }),
+        el('p', { class: 'small muted', style: 'margin-top:10px', text:
+          'The school timetable runs over two weeks. If the app says the wrong one, it can be swapped in Set up.' })
+      ], { ico: '🔁' }));
+    } else if (plan.note || plan.extras.length) {
       kids.push(U.card('Just for today', [
-        day.note ? el('p', { text: day.note }) : null,
-        (day.extras && day.extras.length)
-          ? el('p', { class: 'muted', text: 'Extra things to take: ' + day.extras.join(', ') + '.' })
+        plan.note ? el('p', { text: plan.note }) : null,
+        plan.extras.length
+          ? el('p', { class: 'muted', text: 'Extra things to take: ' + plan.extras.join(', ') + '.' })
           : null
       ], { ico: '📌' }));
+    }
+
+    /* today's lessons, with rooms — the answer to "where am I supposed to be" */
+    if (plan.school && plan.lessons && plan.lessons.length) {
+      kids.push(U.card('Lessons today', [
+        el('ol', { class: 'lessons' }, plan.lessons.map(function (l, i) {
+          return el('li', { class: 'lesson' }, [
+            el('span', { class: 'lesson-p', 'aria-hidden': 'true', text: String(i + 1) }),
+            el('span', { class: 'lesson-name', text: l.subject || 'Free' }),
+            l.room ? el('span', { class: 'lesson-room', text: l.room }) : null
+          ]);
+        })),
+        (S.state.profile.formTutor || S.state.profile.formRoom)
+          ? el('p', { class: 'small muted', style: 'margin-top:12px', text:
+              'Form: ' + (S.state.profile.formTutor || '') +
+              (S.state.profile.formRoom ? ', room ' + S.state.profile.formRoom : '') })
+          : null
+      ], { ico: '📚' }));
     }
 
     /* feelings */

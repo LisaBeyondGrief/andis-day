@@ -3,7 +3,7 @@
    most apps, because the moment she needs the Calm tab is exactly the moment
    she will not be able to wait for a page to load. */
 
-var CACHE = 'andis-day-v2';   // bumped when the logo changed
+var CACHE = 'andis-day-v3';   // bumped when the timetable landed
 var FILES = [
   './',
   './index.html',

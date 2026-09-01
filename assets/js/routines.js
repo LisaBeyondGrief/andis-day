@@ -24,14 +24,24 @@ window.AndiRoutines = (function (D, S, U) {
     return !!fd && S.dayKey(date) === fd;
   }
 
-  /* Full bag list for a given date: the everyday things, plus whatever that
-     weekday needs, plus the first-day extras if it is the first day. */
+  /* Full bag list for a given date: the everyday things, then whatever that
+     weekday needs every week, then whatever this fortnight's school week adds,
+     plus the first-day extras if it is the first day.
+
+     Tick ids carry the week number so that Week 1's PE kit and Week 2's are
+     separate items and one cannot arrive already ticked from the other. */
   function bagListFor(date) {
+    var plan = S.dayPlan(date);
     var items = S.state.bagBase.slice();
-    var day = S.state.timetable[S.weekdayKey(date)] || { extras: [] };
-    (day.extras || []).forEach(function (label, i) {
-      items.push({ id: 'x-' + S.weekdayKey(date) + '-' + i, label: label, note: day.note || '' });
+
+    plan.everyExtras.forEach(function (label, i) {
+      items.push({ id: 'x-' + plan.weekday + '-' + i, label: label, note: 'Every week' });
     });
+    plan.weekExtras.forEach(function (label, i) {
+      items.push({ id: 'x-w' + plan.week + '-' + plan.weekday + '-' + i,
+                   label: label, note: 'Week ' + plan.week });
+    });
+
     if (isFirstDay(date)) {
       D.firstDayExtras.forEach(function (it) { items.push(it); });
     }
@@ -39,8 +49,7 @@ window.AndiRoutines = (function (D, S, U) {
   }
 
   function isSchoolDay(date) {
-    var day = S.state.timetable[S.weekdayKey(date)];
-    return !!(day && day.school);
+    return S.dayPlan(date).school;
   }
 
   /* ---------------- Morning ---------------- */
@@ -123,7 +132,7 @@ window.AndiRoutines = (function (D, S, U) {
     var date = bagDate();
     var key = S.dayKey(date);
     var items = bagListFor(date);
-    var day = S.state.timetable[S.weekdayKey(date)] || {};
+    var plan = S.dayPlan(date);
     var done = S.countDone('bag', items, key);
 
     var kids = [];
@@ -134,11 +143,12 @@ window.AndiRoutines = (function (D, S, U) {
     ]));
 
     kids.push(el('div', { class: 'hero' }, [
-      el('p', { class: 'hero-kicker', text: bagWhen === 'tomorrow' ? 'Packing for' : 'Today is' }),
+      el('p', { class: 'hero-kicker', text: (bagWhen === 'tomorrow' ? 'Packing for' : 'Today is')
+        + (plan.school ? ' · Week ' + plan.week : '') }),
       el('p', { class: 'hero-main', text: U.niceDate(date) }),
       el('p', { class: 'hero-note', text: isFirstDay(date)
         ? 'First day. There are a few extra things on the list today.'
-        : (day.note ? day.note : (isSchoolDay(date) ? 'Normal school day.' : 'Not a school day — pack only if you want to.')) })
+        : (plan.note ? plan.note : (plan.school ? 'Week ' + plan.week + '. Nothing unusual.' : 'Not a school day — pack only if you want to.')) })
     ]));
 
     kids.push(U.progressBar(done, items.length, 'Bag packing'));

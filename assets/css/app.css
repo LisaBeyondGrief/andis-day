@@ -463,3 +463,27 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 22px 0; }
   }
   .breath-circle { transform: scale(.95) !important; }
 }
+
+/* ---------- lessons ---------- */
+.lessons { list-style: none; margin: 0; padding: 0; counter-reset: none; }
+.lesson {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.lesson:last-child { border-bottom: 0; }
+.lesson-p {
+  flex: none;
+  width: 26px; height: 26px; border-radius: 8px;
+  display: grid; place-items: center;
+  background: var(--bg-sunk); color: var(--ink-soft);
+  font-size: .78em; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.lesson-name { flex: 1; min-width: 0; font-weight: 550; }
+.lesson-room {
+  flex: none;
+  font-variant-numeric: tabular-nums; font-weight: 650;
+  font-size: .84em; color: var(--accent-ink);
+  background: var(--accent-soft);
+  padding: 3px 10px; border-radius: 999px;
+}

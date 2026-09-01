@@ -75,15 +75,89 @@ window.AndiData = (function () {
     { id: 'f-comfort',label: 'Something small from home in your pocket' }
   ];
 
-  /* Default week. Lisa edits these in Set up once the real timetable arrives. */
+  /* The school runs a rolling two-week timetable, so a single repeating week
+     cannot describe it. Each weekday therefore has two layers:
+
+       every  — things that happen every week whatever the school week is
+                (swimming, clubs, whether it is a school day at all)
+       w1/w2  — the school's Week 1 and Week 2 timetable on top of that
+
+     A day's list is "every" plus whichever of w1/w2 today falls in. Weekly
+     things go in once, not twice, and the fortnightly timetable sits over it. */
+
+  function blankWeek() {
+    var w = {};
+    DAY_KEYS.forEach(function (k) { w[k] = { note: '', extras: [], lessons: [] }; });
+    return w;
+  }
+
+  /* A lesson is [subject, room, teacher]. Position in the array is the period,
+     so an empty slot is a free period. Rooms are in here because "what if I get
+     lost" is one of her real worries, and a room code in her pocket answers it
+     faster than asking a stranger in a corridor. */
+  function lesson(subject, room, teacher) {
+    return { subject: subject, room: room || '', teacher: teacher || '' };
+  }
+
   var timetable = {
-    mon: { school: true,  note: '',                extras: [] },
-    tue: { school: true,  note: 'PE day',          extras: ['PE kit', 'Trainers'] },
-    wed: { school: true,  note: '',                extras: [] },
-    thu: { school: true,  note: 'PE day',          extras: ['PE kit', 'Trainers'] },
-    fri: { school: true,  note: '',                extras: [] },
-    sat: { school: false, note: '',                extras: [] },
-    sun: { school: false, note: 'Pack for Monday', extras: [] }
+    every: {
+      mon: { school: true,  note: 'Gym at 7pm — strength and conditioning (Purple)',
+             extras: ['Gym kit and trainers', 'Water bottle'] },
+      tue: { school: true,  note: 'Swimming at 7pm · three of the four pool sessions is plenty',
+             extras: ['Swim bag — kit, goggles, towel, hat'] },
+      wed: { school: true,  note: '', extras: [] },
+      thu: { school: true,  note: '', extras: [] },
+      fri: { school: true,  note: 'Swimming at 6.30pm · three of the four pool sessions is plenty',
+             extras: ['Swim bag — kit, goggles, towel, hat'] },
+      sat: { school: false, note: 'Swimming at 12pm · three of the four pool sessions is plenty',
+             extras: ['Swim bag — kit, goggles, towel, hat'] },
+      sun: { school: false, note: 'Swimming at 12.30pm · three of the four is plenty. Pack for Monday.',
+             extras: ['Swim bag — kit, goggles, towel, hat'] }
+    },
+    w1: (function () {
+      var w = blankWeek();
+      w.mon.lessons = [
+        lesson('Geography', 'S40', 'Mr Mundy'),
+        lesson('Spanish', 'F26', 'Mrs Mcvoy'),
+        lesson('Maths', 'S11', 'Miss Hargrave'),
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('History', 'S43', 'Mr Crawford')
+      ];
+      w.tue.lessons = [
+        lesson('Geography', 'S40', 'Mr Mundy'),
+        lesson('Spanish', 'F26', 'Mrs Mcvoy'),
+        lesson('Maths', 'S11', 'Miss Hargrave'),
+        lesson('PE', 'G69', ''),
+        lesson('PFA', 'F62', 'Mr Dilley')
+      ];
+      w.tue.note = 'PE today';
+      w.tue.extras = ['PE kit', 'Trainers'];
+      w.wed.lessons = [
+        lesson('Science', 'G18', 'Mr Stephen'),
+        lesson('RE', 'F23', 'Mr Thurston'),
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('ICT', 'S58', 'Mr Dilley'),
+        lesson('History', 'S43', 'Mr Crawford')
+      ];
+      w.thu.lessons = [
+        lesson('Science', 'G13', 'Mr Wilkinson'),
+        lesson('Science', 'G18', 'Mr Stephen'),
+        lesson('Maths', 'S11', 'Miss Hargrave'),
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('PSHE', 'S27', 'Mrs Power')
+      ];
+      w.fri.lessons = [
+        lesson('Food', 'G32', 'Miss Luter'),
+        lesson('Food', 'G32', 'Miss Luter'),
+        lesson('Maths', 'S11', 'Miss Hargrave'),
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('Music', 'F67', 'Mr Corfield')
+      ];
+      w.fri.note = 'Food tech — double lesson';
+      w.fri.extras = ['Food ingredients', 'A container to bring it home'];
+      return w;
+    })(),
+    w2: blankWeek()          // waiting on the Week 2 sheet
   };
 
   /* ---------- breathing patterns ---------- */

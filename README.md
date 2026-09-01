@@ -78,6 +78,24 @@ it's already done.
 
 **Set up** — for you. Real timetable, real times, and every list is editable.
 
+### The two-week timetable
+
+School runs a rolling fortnight, so each weekday has two layers:
+
+- **Every week** — swimming, clubs, whether it is a school day at all.
+- **Week 1 / Week 2** — the school timetable on top, with lessons and rooms.
+
+A day shows both, so weekly things go in once rather than twice. Which
+fortnight it is gets worked out from the date Week 1 started (Set up → Times).
+School weeks run Monday to Friday, so a term starting on a Thursday makes that
+Thursday and Friday Week 1 and the following Monday Week 2 — not every school
+counts it that way, so Set up has a one-tap swap. The current week is shown on
+Today, on purpose: a fortnight that is out by one is invisible until the
+morning she arrives without her PE kit.
+
+Lessons are edited as one line per period, `Subject, Room, Teacher`. A blank
+line is a free period.
+
 ---
 
 ## Set it up before the 3rd

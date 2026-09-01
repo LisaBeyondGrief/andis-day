@@ -23,7 +23,13 @@ window.AndiSettings = (function (D, S, U) {
       }),
       dateField('First day at the new school', S.state.profile.firstDay, function (v) {
         S.state.profile.firstDay = v; S.save();
-      }, 'The app counts down to this, and adds the first-day extras to the bag list on the day.')
+      }, 'The app counts down to this, and adds the first-day extras to the bag list on the day.'),
+      textField('Form tutor', S.state.profile.formTutor, function (v) {
+        S.state.profile.formTutor = v; S.save();
+      }),
+      textField('Form room', S.state.profile.formRoom, function (v) {
+        S.state.profile.formRoom = v; S.save();
+      })
     ], { ico: '👤' }));
 
     /* ---- times ---- */
@@ -40,9 +46,7 @@ window.AndiSettings = (function (D, S, U) {
     ], { ico: '⏰' }));
 
     /* ---- the week ---- */
-    kids.push(U.card('The week', D.DAY_KEYS.map(function (k) {
-      return dayEditor(k, root);
-    }), { ico: '📅', sub: 'What each day needs. Extra things go in as a comma-separated list — PE kit, trainers, swimming stuff, an instrument.' }));
+    kids.push(weekCard(root));
 
     /* ---- lists ---- */
     kids.push(U.card('Bag list', [
@@ -289,36 +293,116 @@ window.AndiSettings = (function (D, S, U) {
     return wrap;
   }
 
-  /* ---------- day editor ---------- */
+  /* ---------- the week ----------
+     Two layers, because the school runs a fortnight but life does not:
+     "Every week" for things like swimming, then Week 1 and Week 2 for the
+     school timetable on top. */
 
-  function dayEditor(key, root) {
-    var day = S.state.timetable[key];
+  var weekTab = 'every';
 
-    var schoolSw = el('button', { type: 'button', class: 'switch', role: 'switch',
-      'aria-checked': day.school ? 'true' : 'false', 'aria-label': 'School on ' + D.DAY_NAMES[key] });
-    schoolSw.addEventListener('click', function () {
-      day.school = !day.school;
-      schoolSw.setAttribute('aria-checked', day.school ? 'true' : 'false');
-      S.save();
-    });
+  function weekCard(root) {
+    var today = S.dayPlan(new Date());
 
-    var note = el('input', { type: 'text', value: day.note || '', placeholder: 'Note, e.g. PE day', 'aria-label': D.DAY_NAMES[key] + ' note' });
+    var tabs = el('div', { class: 'chips', style: 'margin-bottom:16px' }, [
+      weekTab === 'every' ? null : null,
+      tabChip('Every week', 'every', root),
+      tabChip('Week 1', 'w1', root),
+      tabChip('Week 2', 'w2', root)
+    ]);
+
+    var body = el('div', {}, D.DAY_KEYS.map(function (k) { return dayEditor(k, weekTab, root); }));
+
+    var whichNow = el('div', { class: 'card', style: 'background:var(--bg-sunk);box-shadow:none' }, [
+      el('p', { style: 'margin:0 0 6px;font-weight:650',
+        text: 'Right now the app thinks this is Week ' + today.week + '.' }),
+      el('p', { class: 'small muted', style: 'margin:0 0 12px', text:
+        'Week 1 started on ' + (S.state.settings.weekOneStart || '—') + '. School weeks run Monday to Friday, so a term starting on a Thursday makes that Thursday and Friday Week 1, and the Monday after Week 2. Not every school counts it that way.' }),
+      U.btn('No — this should be Week ' + (today.week === 1 ? 2 : 1), { small: true, onClick: function () {
+        S.swapWeeks();
+        U.toast('Swapped. This is now Week ' + S.dayPlan(new Date()).week + '.');
+        render(root);
+      }})
+    ]);
+
+    return U.card('The week', [
+      el('p', { class: 'card-sub', text:
+        'Put swimming, clubs and anything else weekly under "Every week". Put the school\'s two-week timetable under Week 1 and Week 2. A day shows both.' }),
+      whichNow,
+      tabs,
+      body
+    ], { ico: '📅' });
+  }
+
+  function tabChip(label, value, root) {
+    return el('button', {
+      type: 'button', class: 'chip', 'aria-pressed': weekTab === value ? 'true' : 'false',
+      onclick: function () { weekTab = value; render(root); }
+    }, [label]);
+  }
+
+  function dayEditor(key, layer, root) {
+    var day = S.state.timetable[layer][key];
+    var isEvery = layer === 'every';
+    var rows = [];
+
+    if (isEvery) {
+      var schoolSw = el('button', { type: 'button', class: 'switch', role: 'switch',
+        'aria-checked': day.school ? 'true' : 'false', 'aria-label': 'School on ' + D.DAY_NAMES[key] });
+      schoolSw.addEventListener('click', function () {
+        day.school = !day.school;
+        schoolSw.setAttribute('aria-checked', day.school ? 'true' : 'false');
+        S.save();
+      });
+      rows.push(el('div', { class: 'switch-row', style: 'border:0;padding:0 0 8px' }, [
+        el('div', { class: 'switch-text' }, [
+          el('span', { style: 'font-weight:650', text: D.DAY_NAMES[key] }),
+          el('small', { text: 'A school day' })
+        ]),
+        schoolSw
+      ]));
+    } else {
+      rows.push(el('p', { style: 'font-weight:650;margin:0 0 8px', text: D.DAY_NAMES[key] }));
+    }
+
+    var note = el('input', { type: 'text', value: day.note || '',
+      placeholder: isEvery ? 'Note, e.g. Swimming after school' : 'Note, e.g. PE and Food tech',
+      'aria-label': D.DAY_NAMES[key] + ' note' });
     note.addEventListener('change', function () { day.note = note.value.trim(); S.save(); });
 
     var extras = el('input', { type: 'text', value: (day.extras || []).join(', '),
-      placeholder: 'Extra things, comma separated', 'aria-label': D.DAY_NAMES[key] + ' extra things' });
+      placeholder: 'Things to take, comma separated',
+      'aria-label': D.DAY_NAMES[key] + ' extra things' });
     extras.addEventListener('change', function () {
-      day.extras = extras.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      day.extras = extras.value.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
       S.save();
     });
 
-    return el('div', { style: 'padding:12px 0;border-bottom:1px solid var(--line)' }, [
-      el('div', { class: 'switch-row', style: 'border:0;padding:0 0 8px' }, [
-        el('div', { class: 'switch-text' }, [el('span', { style: 'font-weight:650', text: D.DAY_NAMES[key] })]),
-        schoolSw
-      ]),
-      note, el('div', { style: 'height:8px' }), extras
-    ]);
+    rows.push(note, el('div', { style: 'height:8px' }), extras);
+
+    if (!isEvery) {
+      /* One lesson per line, "Subject, Room, Teacher". Which line it is on is
+         which period it is, so a blank line is a free period. Easier to type on
+         a phone than any grid, and it reads like the paper timetable. */
+      var lessonBox = el('textarea', {
+        style: 'margin-top:8px;min-height:96px',
+        placeholder: 'Subject, room, teacher — one line per period',
+        'aria-label': D.DAY_NAMES[key] + ' lessons'
+      });
+      lessonBox.value = (day.lessons || []).map(function (l) {
+        return [l.subject, l.room, l.teacher].filter(Boolean).join(', ');
+      }).join('\n');
+      lessonBox.addEventListener('change', function () {
+        day.lessons = lessonBox.value.split('\n').map(function (line) {
+          var bits = line.split(',').map(function (x) { return x.trim(); });
+          return { subject: bits[0] || '', room: bits[1] || '', teacher: bits[2] || '' };
+        });
+        while (day.lessons.length && !day.lessons[day.lessons.length - 1].subject) day.lessons.pop();
+        S.save();
+      });
+      rows.push(lessonBox);
+    }
+
+    return el('div', { style: 'padding:12px 0;border-bottom:1px solid var(--line)' }, rows);
   }
 
   /* ---------- display settings ---------- */

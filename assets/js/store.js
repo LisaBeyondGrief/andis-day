@@ -14,12 +14,15 @@ window.AndiStore = (function (D) {
       profile: {
         name: 'Andi',
         firstDay: '2026-09-03',
-        person: 'Mum'
+        person: 'Mum',
+        formTutor: 'JDU',
+        formRoom: 'G15'
       },
       settings: {
         wakeTime: '06:45',
         leaveTime: '',          // blank = worked out from the morning routine
         bedTime: '21:00',
+        weekOneStart: '2026-09-03',   // the school's Week 1 anchor; see weekNumberFor
         theme: 'auto',          // auto | light | dark
         fontScale: 1,
         dyslexicFont: false,
@@ -74,8 +77,30 @@ window.AndiStore = (function (D) {
     } catch (e) {
       state = defaults();
     }
+    migrateTimetable();
     prune();
     return state;
+  }
+
+  /* Earlier versions stored a single repeating week as { mon: {...}, ... }.
+     The school runs a fortnight, so that shape moved under "every".
+
+     Note the ordering trap this walked into once: merge() has already layered
+     the saved data over the defaults by the time this runs, so the new every/
+     w1/w2 keys always exist. Testing for them and returning early left the old
+     top-level days stranded and silently ignored — losing a parent's real
+     setup. So detect the stray day keys themselves, and let what she set beat
+     anything shipped as a default. */
+  function migrateTimetable() {
+    var t = state.timetable;
+    if (!t) { state.timetable = clone(defaults().timetable); return; }
+    var base = defaults().timetable;
+    if (!t.every) t.every = clone(base.every);
+    if (!t.w1) t.w1 = clone(base.w1);
+    if (!t.w2) t.w2 = clone(base.w2);
+    D.DAY_KEYS.forEach(function (k) {
+      if (t[k]) { t.every[k] = t[k]; delete t[k]; }
+    });
   }
 
   /* Shallow-ish merge so a new field added in a later version still appears
@@ -228,6 +253,64 @@ window.AndiStore = (function (D) {
     return fmtTime(wake + last);
   }
 
+  /* Which school week a date falls in.
+
+     School weeks are Monday-to-Friday blocks, so the week number is worked out
+     from the Monday of each week rather than the raw date. Term starting on a
+     Thursday means that Thursday and Friday are Week 1, and the Monday after
+     is Week 2. Some schools count it the other way; the Set up screen has a
+     one-tap swap for exactly that, because a fortnight that is out by one week
+     is invisible until the morning she turns up without her PE kit. */
+  function mondayOf(d) {
+    var out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    out.setDate(out.getDate() - ((out.getDay() + 6) % 7));
+    return out;
+  }
+
+  function weekNumberFor(date) {
+    var anchor = state.settings.weekOneStart;
+    if (!anchor) return 1;
+    var bits = String(anchor).split('-');
+    var start = new Date(+bits[0], +bits[1] - 1, +bits[2]);
+    if (isNaN(start.getTime())) return 1;
+    var weeks = Math.round((mondayOf(date || new Date()) - mondayOf(start)) / 604800000);
+    return (((weeks % 2) + 2) % 2) === 0 ? 1 : 2;
+  }
+
+  /* Swap which fortnight we are in, by moving the anchor a week. */
+  function swapWeeks() {
+    var bits = String(state.settings.weekOneStart || '').split('-');
+    var start = new Date(+bits[0], +bits[1] - 1, +bits[2]);
+    if (isNaN(start.getTime())) return;
+    start.setDate(start.getDate() + 7);
+    state.settings.weekOneStart = dayKey(start);
+    save();
+  }
+
+  /* Everything a given date needs: the every-week layer plus this fortnight's. */
+  function dayPlan(date) {
+    date = date || new Date();
+    var key = weekdayKey(date);
+    var t = state.timetable || {};
+    var every = (t.every && t.every[key]) || { school: false, note: '', extras: [] };
+    // Term has not started yet: a weekday before the first day is not a school
+    // day, whatever the weekly pattern says.
+    var beforeTerm = !!(state.profile.firstDay && dayKey(date) < state.profile.firstDay);
+    var wk = weekNumberFor(date);
+    var wkDay = (t['w' + wk] && t['w' + wk][key]) || { note: '', extras: [] };
+    var notes = [every.note, wkDay.note].filter(Boolean);
+    return {
+      week: wk,
+      weekday: key,
+      school: !!every.school && !beforeTerm,
+      note: notes.join(' · '),
+      everyExtras: every.extras || [],
+      weekExtras: wkDay.extras || [],
+      lessons: wkDay.lessons || [],
+      extras: (every.extras || []).concat(wkDay.extras || [])
+    };
+  }
+
   function reset() {
     try { localStorage.removeItem(KEY); } catch (e) {}
     state = defaults();
@@ -241,6 +324,7 @@ window.AndiStore = (function (D) {
     dayProgress: dayProgress, isTicked: isTicked, toggle: toggle, setTicked: setTicked,
     clearList: clearList, countDone: countDone, bumpStreak: bumpStreak,
     addWorry: addWorry, removeWorry: removeWorry, logMood: logMood,
-    parseTime: parseTime, fmtTime: fmtTime, stepTime: stepTime, leaveTime: leaveTime
+    parseTime: parseTime, fmtTime: fmtTime, stepTime: stepTime, leaveTime: leaveTime,
+    weekNumberFor: weekNumberFor, swapWeeks: swapWeeks, dayPlan: dayPlan
   };
 })(window.AndiData);
