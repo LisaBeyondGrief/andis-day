@@ -111,7 +111,7 @@ window.AndiData = (function () {
              extras: ['Swim bag — kit, goggles, towel, hat'] },
       sat: { school: false, note: 'Swimming at 12pm · three of the four pool sessions is plenty',
              extras: ['Swim bag — kit, goggles, towel, hat'] },
-      sun: { school: false, note: 'Swimming at 12.30pm · three of the four is plenty. Pack for Monday.',
+      sun: { school: false, note: 'Swimming at 2pm · three of the four is plenty. Pack for Monday.',
              extras: ['Swim bag — kit, goggles, towel, hat'] }
     },
     w1: (function () {
