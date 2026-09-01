@@ -182,6 +182,17 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
       ], { ico: '📌' }));
     }
 
+    /* A week whose sheet has not arrived yet. Say so plainly, so a blank day
+       reads as "not added yet" rather than as the app having lost something. */
+    if (plan.school && (!plan.lessons || !plan.lessons.length)) {
+      kids.push(U.card('Week ' + plan.week + ' lessons are not in yet', [
+        el('p', { class: 'muted', text:
+          'The Week ' + plan.week + ' timetable has not been added, so there are no lessons or rooms to show today. Everything else on this screen still works.' }),
+        el('p', { class: 'small muted', style: 'margin-top:8px', text:
+          'Your paper timetable has them, and they can be typed in under Set up → The week.' })
+      ], { ico: '📄' }));
+    }
+
     /* today's lessons, with rooms — the answer to "where am I supposed to be" */
     if (plan.school && plan.lessons && plan.lessons.length) {
       kids.push(U.card('Lessons today', [
