@@ -488,3 +488,14 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 22px 0; }
   background: var(--accent-soft);
   padding: 3px 10px; border-radius: 999px;
 }
+
+/* breaks, lunch and the fixed parts of the day read quieter than lessons */
+.lesson-break, .lesson-fixed, .lesson-end, .lesson-option { background: transparent; }
+.lesson-break .lesson-name,
+.lesson-fixed .lesson-name,
+.lesson-option .lesson-name { font-weight: 500; color: var(--ink-soft); }
+.lesson-break { background: var(--bg-sunk); border-radius: 10px; padding-left: 8px; padding-right: 8px; }
+.lesson-break .lesson-name { color: var(--accent-ink); font-weight: 600; }
+.lesson-end .lesson-name { font-weight: 650; color: var(--done); }
+.lesson-option .lesson-name { font-style: italic; }
+.lesson-gap .lesson-name { color: var(--warm); font-weight: 550; }

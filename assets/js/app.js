@@ -199,14 +199,33 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
       ], { ico: '📄' }));
     }
 
-    /* today's lessons, with rooms — the answer to "where am I supposed to be" */
+    /* The whole shape of the school day — lessons slotted into periods, with
+       break, lunch and home time where they actually fall. */
     if (plan.school && plan.lessons && plan.lessons.length) {
-      kids.push(U.card('Lessons today', [
-        el('ol', { class: 'lessons' }, plan.lessons.map(function (l, i) {
+      kids.push(U.card('Your day', [
+        el('ul', { class: 'lessons' }, D.DAY_SHAPE.map(function (slot) {
+          if (slot.kind !== 'lesson') {
+            return el('li', { class: 'lesson lesson-' + slot.kind }, [
+              el('span', { class: 'lesson-time', text: slot.time }),
+              el('span', { class: 'lesson-text' }, [
+                el('span', { class: 'lesson-name', text: slot.label })
+              ])
+            ]);
+          }
+          var l = plan.lessons[slot.period - 1];
+          if (!l || !l.subject) {
+            return el('li', { class: 'lesson lesson-gap' }, [
+              el('span', { class: 'lesson-time', text: slot.time }),
+              el('span', { class: 'lesson-text' }, [
+                el('span', { class: 'lesson-name', text: 'Nothing listed' }),
+                el('span', { class: 'lesson-who', text: 'Check your planner — it may not be on the app yet' })
+              ])
+            ]);
+          }
           return el('li', { class: 'lesson' }, [
-            el('span', { class: 'lesson-time', text: l.time || String(i + 1) }),
+            el('span', { class: 'lesson-time', text: slot.time }),
             el('span', { class: 'lesson-text' }, [
-              el('span', { class: 'lesson-name', text: l.subject || 'Free' }),
+              el('span', { class: 'lesson-name', text: l.subject }),
               l.teacher ? el('span', { class: 'lesson-who', text: l.teacher }) : null
             ]),
             l.room ? el('span', { class: 'lesson-room', text: l.room }) : null

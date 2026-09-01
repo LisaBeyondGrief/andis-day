@@ -91,15 +91,33 @@ window.AndiData = (function () {
     return w;
   }
 
-  /* A lesson carries its real start time, room and teacher, taken from the
-     school app's own export. Times matter more than period numbers to someone
-     working out where she is meant to be; rooms answer "what if I get lost"
-     faster than asking a stranger in a corridor. */
-  function lesson(time, subject, room, teacher) {
-    return { time: time, subject: subject, room: room || '', teacher: teacher || '' };
-  }
+  /* The shape of every school day at Open Academy. Lessons slot into the five
+     periods; everything else is the same every day. Breaks are in here because
+     knowing exactly when the day lets up is worth as much to an anxious child
+     as knowing what the lessons are. */
+  var DAY_SHAPE = [
+    { time: '08:30', kind: 'fixed',  label: 'Line up and tutor check-in' },
+    { time: '08:35', kind: 'lesson', period: 1 },
+    { time: '09:40', kind: 'lesson', period: 2 },
+    { time: '10:40', kind: 'break',  label: 'Break' },
+    { time: '11:00', kind: 'lesson', period: 3 },
+    { time: '12:00', kind: 'break',  label: 'Lunch' },
+    { time: '12:30', kind: 'lesson', period: 4 },
+    { time: '13:30', kind: 'lesson', period: 5 },
+    { time: '14:30', kind: 'fixed',  label: 'Collective worship' },
+    { time: '14:40', kind: 'fixed',  label: 'Form time' },
+    { time: '15:00', kind: 'end',    label: 'End of the school day' },
+    { time: '15:00', kind: 'option', label: 'Hubs and clubs, if you are going' }
+  ];
 
-  var TUTOR = lesson('14:30', 'Tutor', 'G15', 'JDU');
+  /* Lessons are stored by period: position in the array is the period number,
+     so an empty slot is a period with nothing timetabled. Rooms are in here
+     because "what if I get lost" is one of her real worries, and a room code
+     in her pocket answers it faster than asking a stranger in a corridor. */
+  function lesson(subject, room, teacher) {
+    return { subject: subject, room: room || '', teacher: teacher || '' };
+  }
+  var free = null;
 
   /* Spelled out rather than "PE kit": one tick against an unopened bag is how
      half of it gets left at home. */
@@ -127,10 +145,9 @@ window.AndiData = (function () {
      A day's list is "every" plus whichever of w1/w2 today falls in. Weekly
      things go in once, not twice, and the fortnightly timetable sits over it.
 
-     Week 1 and Week 2 below are read off the school app's export for
-     3-25 September, confirmed by the fortnight repeating exactly: Thursday
-     the 3rd matches the 17th, Friday the 4th matches the 18th, and Monday the
-     7th matches the 21st. */
+     Week 1 and Week 2 are read off the school app's export for 3-25 September,
+     confirmed by the fortnight repeating exactly: Thursday the 3rd matches the
+     17th, Friday the 4th the 18th, Monday the 7th the 21st. */
 
   var timetable = {
     every: {
@@ -151,45 +168,43 @@ window.AndiData = (function () {
     w1: (function () {
       var w = blankWeek();
       w.mon.lessons = [
-        lesson('08:35', 'Geography', 'S40', 'Mr Mundy'),
-        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
-        lesson('12:00', 'English', 'F38', 'Mrs Roberts'),
-        lesson('13:30', 'Religious Studies', 'F23', 'Mr Thurston'),
-        TUTOR
+        lesson('Geography', 'S40', 'Mr Mundy'),
+        lesson('Spanish', 'F27', 'Mrs Mcvoy'),
+        free,
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('Religious Studies', 'F23', 'Mr Thurston')
       ];
       w.tue.lessons = [
-        lesson('08:35', 'Music', 'F67', 'Mr Corfield'),
-        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
-        lesson('11:00', 'English', 'F38', 'Mrs Roberts'),
-        lesson('12:00', 'PE', 'G69', 'Mr Lambert'),
-        lesson('13:30', 'History', 'S43', 'Mr Crawford'),
-        TUTOR
+        lesson('Music', 'F67', 'Mr Corfield'),
+        lesson('Spanish', 'F27', 'Mrs Mcvoy'),
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('PE', 'G69', 'Mr Lambert'),
+        lesson('History', 'S43', 'Mr Crawford')
       ];
-      w.tue.note = 'PE after lunch';
+      w.tue.note = 'PE straight after lunch';
       w.tue.extras = PE_KIT.slice();
       w.wed.lessons = [
-        lesson('08:35', 'Science', 'G18', 'Mr Stephen'),
-        lesson('09:40', 'Religious Studies', 'F23', 'Mr Thurston'),
-        lesson('11:00', 'English', 'F38', 'Mrs Roberts'),
-        lesson('12:00', 'PSHE', 'G13', 'Mrs Power'),
-        lesson('13:30', 'History', 'S43', 'Mr Crawford'),
-        TUTOR
+        lesson('Science', 'G18', 'Mr Stephen'),
+        lesson('Religious Studies', 'F23', 'Mr Thurston'),
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('PSHE', 'G13', 'Mrs Power'),
+        lesson('History', 'S43', 'Mr Crawford')
       ];
       w.thu.lessons = [
-        lesson('08:35', 'Science', 'G14', 'Mr Wilkinson'),
-        lesson('09:40', 'Science', 'G18', 'Mr Stephen'),
-        lesson('12:00', 'English', 'F38', 'Mrs Roberts'),
-        lesson('13:30', 'Art', 'F23', 'Mr Thurston'),
-        TUTOR
+        lesson('Science', 'G14', 'Mr Wilkinson'),
+        lesson('Science', 'G18', 'Mr Stephen'),
+        free,
+        lesson('English', 'F38', 'Mrs Roberts'),
+        lesson('Art', 'F23', 'Mr Thurston')
       ];
       w.fri.lessons = [
-        lesson('08:35', 'Food', 'G32', 'Miss Luter'),
-        lesson('09:40', 'Food', 'G32', 'Miss Luter'),
-        lesson('12:00', 'PE', 'G69', 'Mr Wilkinson'),
-        lesson('13:30', 'Performing Arts', 'F41', 'Mr Dilley'),
-        TUTOR
+        lesson('Food', 'G32', 'Miss Luter'),
+        lesson('Food', 'G32', 'Miss Luter'),
+        free,
+        lesson('PE', 'G69', 'Mr Wilkinson'),
+        lesson('Performing Arts', 'F41', 'Mr Dilley')
       ];
-      w.fri.note = 'Food tech first thing (double), then PE';
+      w.fri.note = 'Food tech first thing (double), then PE after lunch';
       w.fri.extras = ['Food ingredients', 'A container to bring it home'].concat(PE_KIT);
       return w;
     })(),
@@ -197,40 +212,43 @@ window.AndiData = (function () {
     w2: (function () {
       var w = blankWeek();
       w.mon.lessons = [
-        lesson('09:40', 'History', 'S43', 'Mr Crawford'),
-        lesson('12:00', 'PE', 'G69', 'Mr Lambert'),
-        lesson('13:30', 'English', 'F38', 'Mrs Roberts'),
-        TUTOR
+        free,
+        lesson('History', 'S43', 'Mr Crawford'),
+        free,
+        lesson('PE', 'G69', 'Mr Lambert'),
+        lesson('English', 'F38', 'Mrs Roberts')
       ];
-      w.mon.note = 'PE after lunch';
+      w.mon.note = 'PE straight after lunch';
       w.mon.extras = PE_KIT.slice();
       w.tue.lessons = [
-        lesson('08:35', 'Geography', 'S40', 'Mr Mundy'),
-        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
-        lesson('12:00', 'English', 'F38', 'Mrs Roberts'),
-        TUTOR
+        lesson('Geography', 'S40', 'Mr Mundy'),
+        lesson('Spanish', 'F27', 'Mrs Mcvoy'),
+        free,
+        lesson('English', 'F38', 'Mrs Roberts'),
+        free
       ];
       w.wed.lessons = [
-        lesson('08:35', 'PE', 'G69', 'Mr Wilkinson'),
-        lesson('09:40', 'Spanish', 'F27', 'Mrs Mcvoy'),
-        lesson('11:00', 'ICT', 'S58', 'Mr Dilley'),
-        lesson('12:00', 'Geography', 'S40', 'Mr Mundy'),
-        lesson('13:30', 'English', 'F38', 'Mrs Roberts'),
-        TUTOR
+        lesson('PE', 'G69', 'Mr Wilkinson'),
+        lesson('Spanish', 'F27', 'Mrs Mcvoy'),
+        lesson('ICT', 'S58', 'Mr Dilley'),
+        lesson('Geography', 'S40', 'Mr Mundy'),
+        lesson('English', 'F38', 'Mrs Roberts')
       ];
-      w.wed.note = 'PE first thing — kit on before you go if that is easier';
+      w.wed.note = 'PE is first thing — kit on before you leave if that is easier';
       w.wed.extras = PE_KIT.slice();
       w.thu.lessons = [
-        lesson('08:35', 'Science', 'G18', 'Mr Stephen'),
-        lesson('09:40', 'English', 'F38', 'Mrs Roberts'),
-        lesson('12:00', 'History', 'S43', 'Mr Crawford'),
-        lesson('13:30', 'Art', 'F23', 'Mr Thurston'),
-        TUTOR
+        lesson('Science', 'G18', 'Mr Stephen'),
+        lesson('English', 'F38', 'Mrs Roberts'),
+        free,
+        lesson('History', 'S43', 'Mr Crawford'),
+        lesson('Art', 'F23', 'Mr Thurston')
       ];
       w.fri.lessons = [
-        lesson('08:35', 'Science', 'G14', 'Mr Wilkinson'),
-        lesson('09:40', 'Music', 'F67', 'Mr Corfield'),
-        lesson('12:00', 'Design Technology', 'G25', 'KRE')
+        lesson('Science', 'G14', 'Mr Wilkinson'),
+        lesson('Music', 'F67', 'Mr Corfield'),
+        free,
+        lesson('Design Technology', 'G25', 'KRE'),
+        free
       ];
       return w;
     })()
@@ -499,6 +517,7 @@ window.AndiData = (function () {
     bagBase: bagBase,
     firstDayExtras: firstDayExtras,
     timetable: timetable,
+    DAY_SHAPE: DAY_SHAPE,
     breathing: breathing,
     grounding: grounding,
     meditations: meditations,
