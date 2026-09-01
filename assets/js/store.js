@@ -101,6 +101,16 @@ window.AndiStore = (function (D) {
     D.DAY_KEYS.forEach(function (k) {
       if (t[k]) { t.every[k] = t[k]; delete t[k]; }
     });
+    // Fields added after a save was written must exist, or editing them throws.
+    ['every', 'w1', 'w2'].forEach(function (layer) {
+      D.DAY_KEYS.forEach(function (k) {
+        var d = t[layer][k];
+        if (!d) { t[layer][k] = clone(base[layer][k]); return; }
+        if (!d.extras) d.extras = [];
+        if (!d.homeExtras) d.homeExtras = [];
+        if (layer !== 'every' && !d.lessons) d.lessons = [];
+      });
+    });
   }
 
   /* Shallow-ish merge so a new field added in a later version still appears
@@ -306,6 +316,9 @@ window.AndiStore = (function (D) {
       note: notes.join(' · '),
       everyExtras: every.extras || [],
       weekExtras: wkDay.extras || [],
+      // Kit for after school — swimming, gym. Not school-bag things, so these
+      // stay off the morning list and turn up on the after-school one instead.
+      homeExtras: (every.homeExtras || []).concat(wkDay.homeExtras || []),
       lessons: wkDay.lessons || [],
       extras: (every.extras || []).concat(wkDay.extras || [])
     };

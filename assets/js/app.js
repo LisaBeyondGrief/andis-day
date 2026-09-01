@@ -168,8 +168,11 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
       kids.push(U.card('Week ' + plan.week + ' at school', [
         plan.note ? el('p', { text: plan.note }) : null,
         plan.extras.length
-          ? el('p', { class: 'muted', text: 'Extra things to take: ' + plan.extras.join(', ') + '.' })
+          ? el('p', { class: 'muted', text: 'Extra things for your bag: ' + plan.extras.join(', ') + '.' })
           : el('p', { class: 'muted', text: 'Nothing extra to take today.' }),
+        plan.homeExtras.length
+          ? el('p', { class: 'muted', text: 'For after school, at home: ' + plan.homeExtras.join(', ') + '.' })
+          : null,
         el('p', { class: 'small muted', style: 'margin-top:10px', text:
           'The school timetable runs over two weeks. If the app says the wrong one, it can be swapped in Set up.' })
       ], { ico: '🔁' }));
@@ -177,7 +180,10 @@ window.AndiApp = (function (D, S, U, R, C, Set) {
       kids.push(U.card('Just for today', [
         plan.note ? el('p', { text: plan.note }) : null,
         plan.extras.length
-          ? el('p', { class: 'muted', text: 'Extra things to take: ' + plan.extras.join(', ') + '.' })
+          ? el('p', { class: 'muted', text: 'Extra things for your bag: ' + plan.extras.join(', ') + '.' })
+          : null,
+        plan.homeExtras.length
+          ? el('p', { class: 'muted', text: 'To get ready at home: ' + plan.homeExtras.join(', ') + '.' })
           : null
       ], { ico: '📌' }));
     }

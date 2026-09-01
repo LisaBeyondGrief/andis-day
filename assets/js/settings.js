@@ -327,6 +327,8 @@ window.AndiSettings = (function (D, S, U) {
     return U.card('The week', [
       el('p', { class: 'card-sub', text:
         'Put swimming, clubs and anything else weekly under "Every week". Put the school\'s two-week timetable under Week 1 and Week 2. A day shows both.' }),
+      el('p', { class: 'card-sub', text:
+        'Two kinds of kit: things for her school bag go in the first box, and things she sorts out at home afterwards — swimming, gym — go in the second, so they turn up on the after-school list instead of being carried around all day.' }),
       whichNow,
       tabs,
       body
@@ -377,7 +379,16 @@ window.AndiSettings = (function (D, S, U) {
       S.save();
     });
 
-    rows.push(note, el('div', { style: 'height:8px' }), extras);
+    var homeExtras = el('input', { type: 'text', value: (day.homeExtras || []).join(', '),
+      placeholder: 'Kit for after school, comma separated',
+      'aria-label': D.DAY_NAMES[key] + ' after-school kit' });
+    homeExtras.addEventListener('change', function () {
+      day.homeExtras = homeExtras.value.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+      S.save();
+    });
+
+    rows.push(note, el('div', { style: 'height:8px' }), extras,
+              el('div', { style: 'height:8px' }), homeExtras);
 
     if (!isEvery) {
       /* One lesson per line, "Subject, Room, Teacher". Which line it is on is

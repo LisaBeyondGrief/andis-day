@@ -191,7 +191,14 @@ window.AndiRoutines = (function (D, S, U) {
 
   function renderEvening(root, go) {
     var key = S.dayKey();
-    var after = S.state.routines.afterSchool;
+    var plan = S.dayPlan(new Date());
+    /* Today's after-school kit — swimming, gym — added to the end of the list
+       rather than carried to school all day in a bag she does not need. */
+    var after = S.state.routines.afterSchool.concat(
+      plan.homeExtras.map(function (label, i) {
+        return { id: 'h-' + plan.weekday + '-' + i, label: 'Get ready: ' + label, note: plan.note || '' };
+      })
+    );
     var bed = S.state.routines.bedtime;
     var kids = [];
 

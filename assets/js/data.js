@@ -14,17 +14,19 @@ window.AndiData = (function () {
 
   /* ---------- routines ---------- */
 
+  /* Uniform goes on after breakfast and teeth, so it does not collect cereal
+     or toothpaste on the way out. */
   var morning = [
     { id: 'm-wake',    mins: 0,  label: 'Alarm off, sit up',        note: 'Feet on the floor. That is the whole job for now.' },
     { id: 'm-loo',     mins: 5,  label: 'Loo and wash your face',   note: '' },
-    { id: 'm-dress',   mins: 10, label: 'Get dressed',              note: 'Uniform is already out from last night.' },
-    { id: 'm-break',   mins: 22, label: 'Breakfast and a drink',    note: 'Something is better than nothing.' },
-    { id: 'm-meds',    mins: 33, label: 'Medication',               note: 'Only if you take some — delete this in Set up if not.' },
-    { id: 'm-teeth',   mins: 36, label: 'Teeth',                    note: '' },
-    { id: 'm-hair',    mins: 40, label: 'Hair',                     note: '' },
-    { id: 'm-bag',     mins: 45, label: 'Check your bag',           note: 'Tap here to see today’s list.', link: 'bag' },
-    { id: 'm-calm',    mins: 52, label: 'One minute of breathing',  note: 'Before the front door, not after.', link: 'breathing' },
-    { id: 'm-shoes',   mins: 55, label: 'Shoes and coat',           note: '' },
+    { id: 'm-break',   mins: 12, label: 'Breakfast and a drink',    note: 'Still in your pyjamas — uniform goes on after.' },
+    { id: 'm-meds',    mins: 25, label: 'Vitamin',                  note: '' },
+    { id: 'm-teeth',   mins: 28, label: 'Teeth',                    note: '' },
+    { id: 'm-dress',   mins: 32, label: 'Get dressed',              note: 'Uniform is already out from last night.' },
+    { id: 'm-hair',    mins: 44, label: 'Hair',                     note: '' },
+    { id: 'm-bag',     mins: 48, label: 'Check your bag',           note: 'Tap here to see today’s list.', link: 'bag' },
+    { id: 'm-calm',    mins: 53, label: 'One minute of breathing',  note: 'Before the front door, not after.', link: 'breathing' },
+    { id: 'm-shoes',   mins: 56, label: 'Shoes and coat',           note: '' },
     { id: 'm-go',      mins: 60, label: 'Out of the door',          note: 'You have got everything. It is done.' }
   ];
 
@@ -87,7 +89,7 @@ window.AndiData = (function () {
 
   function blankWeek() {
     var w = {};
-    DAY_KEYS.forEach(function (k) { w[k] = { note: '', extras: [], lessons: [] }; });
+    DAY_KEYS.forEach(function (k) { w[k] = { note: '', extras: [], homeExtras: [], lessons: [] }; });
     return w;
   }
 
@@ -102,17 +104,17 @@ window.AndiData = (function () {
   var timetable = {
     every: {
       mon: { school: true,  note: 'Gym at 7pm — strength and conditioning (Purple)',
-             extras: ['Gym kit and trainers', 'Water bottle'] },
+             extras: [], homeExtras: ['Gym kit and trainers', 'Water bottle'] },
       tue: { school: true,  note: 'Swimming at 7pm · three of the four pool sessions is plenty',
-             extras: ['Swim bag — kit, goggles, towel, hat'] },
-      wed: { school: true,  note: '', extras: [] },
-      thu: { school: true,  note: '', extras: [] },
+             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] },
+      wed: { school: true,  note: '', extras: [], homeExtras: [] },
+      thu: { school: true,  note: '', extras: [], homeExtras: [] },
       fri: { school: true,  note: 'Swimming at 6.30pm · three of the four pool sessions is plenty',
-             extras: ['Swim bag — kit, goggles, towel, hat'] },
+             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] },
       sat: { school: false, note: 'Swimming at 12pm · three of the four pool sessions is plenty',
-             extras: ['Swim bag — kit, goggles, towel, hat'] },
+             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] },
       sun: { school: false, note: 'Swimming at 2pm · three of the four is plenty. Pack for Monday.',
-             extras: ['Swim bag — kit, goggles, towel, hat'] }
+             extras: [], homeExtras: ['Swim bag — kit, goggles, towel, hat'] }
     },
     w1: (function () {
       var w = blankWeek();
