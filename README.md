@@ -108,14 +108,23 @@ Worth doing in this order:
    kit, an instrument, swimming stuff. These appear automatically on the bag
    list on the right day.
 3. **Set up → Bag list.** Delete what she doesn't have, add what she does. If
-   she gets a time-out card or a lanyard from the SRB, add it.
+   she gets a time-out card or a lanyard from school, add it.
 4. **Set up → Morning routine.** Change the wording to whatever she actually
    calls things. Delete the medication step if it doesn't apply.
 5. Sit down with her and go through the **What if…** plans together *before* the
    first day. Change any answer that isn't right for her school — especially the
    ones about the time-out card and where she goes when she needs to leave a
-   room, which should match what the SRB has actually agreed.
+   room, which should match what school has actually agreed.
 6. **Set up → Backup** and save the file somewhere once you've got it right.
+
+## Where the school details live
+
+The school, the teachers, the rooms, the clubs and the kit lists are **not** in
+this repository. This repository is public and publishes a live site, so those
+belong on the device and nowhere else. They are typed in under **Set up**, or
+pasted in one go under **Set up → Backup → Paste the setup in**. A fresh copy
+of the app with nothing pasted in is a working app with an empty week, not a
+broken one.
 
 ## A few honest limits
 
@@ -136,7 +145,7 @@ Worth doing in this order:
   going quiet. It's a bit robotic on some Androids; turn it off in Set up and
   the meditations just show the words instead.
 - **The meditations are not therapy.** They're coping tools for the day-to-day
-  wobbles. Nothing in here replaces the SRB team or CAMHS.
+  wobbles. Nothing in here replaces the people who actually support her.
 
 ## For anyone editing the code
 
