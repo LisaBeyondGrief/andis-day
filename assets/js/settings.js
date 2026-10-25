@@ -135,6 +135,12 @@ window.AndiSettings = (function (D, S, U) {
       el('div', { class: 'btn-row', style: 'margin-top:12px' }, [
         U.btn('Save a backup file', { small: true, onClick: exportData }),
         U.btn('Restore from a file', { small: true, onClick: importData })
+      ]),
+      el('p', { class: 'small muted', style: 'margin-top:14px', text:
+        'On a new phone or tablet it is quicker to paste the setup straight in. That brings back the week, the rooms, the kit lists and the times. Ticks, worries and check-ins already on this device are left alone.' }),
+      el('div', { class: 'btn-row', style: 'margin-top:12px' }, [
+        U.btn('Paste the setup in', { small: true, onClick: pasteSetup }),
+        U.btn('Copy the setup out', { small: true, onClick: copySetup })
       ])
     ], { ico: '💾' }));
 
@@ -537,6 +543,81 @@ window.AndiSettings = (function (D, S, U) {
     document.body.appendChild(input);
     input.click();
     setTimeout(function () { if (input.parentNode) input.parentNode.removeChild(input); }, 60000);
+  }
+
+  /* ---------- the setup, as text ----------
+
+     The week, the rooms, the clubs and the kit lists are not shipped in the
+     app any more, because the app's own files are public and those details are
+     hers. They live on the device instead. These two buttons move them between
+     devices without retyping a fortnight of lessons.
+
+     Only the set-up half of the save is touched. Her ticks, her worries and
+     her check-ins stay exactly as they are on this device, because restoring a
+     timetable should never cost her the things she wrote down. */
+
+  var SETUP_KEYS = ['profile', 'settings', 'routines', 'bagBase', 'timetable'];
+
+  function setupBox(extra) {
+    var a = { rows: 10, style: 'width:100%;min-height:180px;font-size:13px;line-height:1.4;padding:10px;border-radius:10px' };
+    Object.keys(extra || {}).forEach(function (k) { a[k] = extra[k]; });
+    return el('textarea', a);
+  }
+
+  function copySetup() {
+    var out = {};
+    SETUP_KEYS.forEach(function (k) { out[k] = S.state[k]; });
+    var text = JSON.stringify(out, null, 2);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        U.toast('Setup copied. Paste it somewhere safe.');
+      }, function () { showSetup(text); });
+      return;
+    }
+    showSetup(text);
+  }
+
+  function showSetup(text) {
+    var ta = setupBox({ readonly: true });
+    ta.value = text;
+    U.openOverlay('Your setup', [
+      el('p', { class: 'small muted', text: 'Select all of this and copy it. Keep it somewhere private — it has her week in it.' }),
+      ta
+    ]);
+    setTimeout(function () { ta.focus(); ta.select(); }, 60);
+  }
+
+  function pasteSetup() {
+    var ta = setupBox({ placeholder: 'Paste the saved setup here…' });
+    var msg = el('p', { class: 'small muted', text: 'Nothing changes until you tap Load it in.' });
+    U.openOverlay('Paste the setup in', [
+      el('p', { class: 'small muted', text:
+        'Paste what came out of "Copy the setup out", or the whole contents of a backup file. Her ticks, worries and check-ins on this device are not touched.' }),
+      ta,
+      msg,
+      el('div', { class: 'btn-row', style: 'margin-top:12px' }, [
+        U.btn('Load it in', { variant: 'primary', small: true, onClick: function () {
+          var data = null;
+          try { data = JSON.parse(ta.value); } catch (e) { data = null; }
+          if (!data || typeof data !== 'object' || Array.isArray(data)) {
+            msg.textContent = 'That did not read as saved setup. Check the whole thing was pasted, from the first { to the last }.';
+            return;
+          }
+          var found = SETUP_KEYS.filter(function (k) {
+            return data[k] && typeof data[k] === 'object';
+          });
+          if (!found.length) {
+            msg.textContent = 'That is readable, but there is no setup in it — no week, no lists, no times. It may be the wrong file.';
+            return;
+          }
+          found.forEach(function (k) { S.state[k] = data[k]; });
+          S.save();
+          U.toast('Loaded. Reloading…');
+          setTimeout(function () { location.reload(); }, 900);
+        }})
+      ])
+    ]);
+    setTimeout(function () { ta.focus(); }, 60);
   }
 
   return { render: render, applyDisplay: applyDisplay };
