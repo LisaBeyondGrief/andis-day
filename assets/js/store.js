@@ -13,16 +13,16 @@ window.AndiStore = (function (D) {
       version: 1,
       profile: {
         name: 'Andi',
-        firstDay: '2026-09-03',
+        firstDay: '',
         person: 'Mum',
-        formTutor: 'JDU',
-        formRoom: 'G15'
+        formTutor: '',
+        formRoom: ''
       },
       settings: {
         wakeTime: '06:45',
         leaveTime: '',          // blank = worked out from the morning routine
         bedTime: '21:00',
-        weekOneStart: '2026-09-03',   // the school's Week 1 anchor; see weekNumberFor
+        weekOneStart: '',   // the school's Week 1 anchor; see weekNumberFor
         theme: 'auto',          // auto | light | dark
         fontScale: 1,
         dyslexicFont: false,
